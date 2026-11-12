@@ -65,7 +65,7 @@ export function getProviderGuide(provider: string, ctx: GuideContext): string {
     case 'codebuddy-cli':
       return [
         `📋 首次使用 CodeBuddy / WorkBuddy CLI:`,
-        `   → 装了 WorkBuddy 桌面版（macOS）且已登录：直接可用，AO 会自动找到它内置的 codebuddy`,
+        `   → 装了 WorkBuddy 桌面版（macOS）且已登录：直接可用，momogsm 会自动找到它内置的 codebuddy`,
         `   → 否则: npm install -g @tencent-ai/codebuddy-code，然后终端跑一次 codebuddy 完成登录`,
         `   → 模型默认 auto；要指定就用 codebuddy --help 里列出的 id（如 glm-5.1、kimi-k2.5）`,
       ].join('\n');
@@ -75,7 +75,7 @@ export function getProviderGuide(provider: string, ctx: GuideContext): string {
         `📋 首次使用 Cline CLI:`,
         `   → npm install -g cline`,
         `   → 配一次供应商: cline auth -p <provider> -k <key> [-b <base_url>] [-m <model>]（或直接 cline auth 交互选）`,
-        `   → AO 用的就是这份配置；YAML 里 model 留空用它的默认模型`,
+        `   → momogsm 用的就是这份配置；YAML 里 model 留空用它的默认模型`,
       ].join('\n');
 
     case 'opencode-cli':
@@ -83,7 +83,7 @@ export function getProviderGuide(provider: string, ctx: GuideContext): string {
         `📋 首次使用 OpenCode CLI:`,
         `   → npm install -g opencode-ai`,
         `   → 配一次供应商: opencode auth login（或写 ~/.config/opencode/opencode.json）`,
-        `   → AO 用的就是这份配置；YAML 里 model 留空用它的默认，指定要写成 provider/model`,
+        `   → momogsm 用的就是这份配置；YAML 里 model 留空用它的默认，指定要写成 provider/model`,
       ].join('\n');
 
     case 'dsh-cli':

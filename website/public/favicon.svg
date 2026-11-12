@@ -5,11 +5,11 @@
       <stop offset="1" stop-color="#2E7CF6"/>
     </linearGradient>
   </defs>
-  <!-- 应用图标：渐变紫蓝圆角方底 + 白色 AO（macOS 风格留边） -->
+  <!-- momogsm 应用图标：渐变紫蓝圆角方底 + 白色小写 m（纯路径，不依赖字体） -->
   <rect x="62" y="62" width="900" height="900" rx="200" fill="url(#bg)"/>
-  <g transform="translate(512 512) scale(1.28) translate(-256 -256)">
-    <path d="M52 372 L142 138 L232 372" fill="none" stroke="#fff" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="386" cy="255" r="88" fill="none" stroke="#fff" stroke-width="52"/>
-    <circle cx="386" cy="255" r="24" fill="#fff"/>
+  <g fill="none" stroke="#fff" stroke-width="84" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M272 700 V364"/>
+    <path d="M272 484 a120 120 0 0 1 240 0 V700"/>
+    <path d="M512 484 a120 120 0 0 1 240 0 V700"/>
   </g>
 </svg>

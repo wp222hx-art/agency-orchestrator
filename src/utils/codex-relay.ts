@@ -118,13 +118,13 @@ function readState(): RelayState | null {
         || f.file === 'config' && (f.path.length === 1 && ['model_provider', 'model'].includes(f.path[0])
           || f.path.length === 2 && f.path[0] === 'model_providers')))
     || new Set(state.fields.map(f => JSON.stringify([f.file, f.path]))).size !== state.fields.length) {
-    throw new Error('AO Codex 受管字段记录无效，为安全起见不修改配置');
+    throw new Error('momogsm Codex 受管字段记录无效，为安全起见不修改配置');
   }
   const provider = state.fields.find(f => f.file === 'config' && f.path.length === 1 && f.path[0] === 'model_provider');
   const key = state.fields.find(f => f.file === 'auth' && f.path[0] === 'OPENAI_API_KEY');
   if (!provider?.after.present || provider.after.value !== state.providerId || !key?.after.present
     || (state.version === 1 && typeof key.after.value !== 'string')) {
-    throw new Error('AO Codex 受管字段记录不完整，为安全起见不修改配置');
+    throw new Error('momogsm Codex 受管字段记录不完整，为安全起见不修改配置');
   }
   return state;
 }
@@ -225,7 +225,7 @@ export function clearCodexRelay(providerId: string, opts: { expectedRevision?: s
     if (doc.model_provider !== providerId) return;
     const auth = readForWrite(AUTH_JSON, 'json');
     const state = readState();
-    if (!state || state.providerId !== providerId) throw new Error('历史 Codex 配置缺少 AO 字段所有权记录，请先检查备份，不自动删除凭据');
+    if (!state || state.providerId !== providerId) throw new Error('历史 Codex 配置缺少 momogsm 字段所有权记录，请先检查备份，不自动删除凭据');
     checkOwnership(state, doc, auth);
     for (const field of [...state.fields].reverse()) setField(field.file === 'config' ? doc : auth, field.path, field.before);
     if (state.providersCreated && doc.model_providers && Object.keys(doc.model_providers).length === 0) delete doc.model_providers;
@@ -263,9 +263,9 @@ export function removeLegacyCodexRelay(providerId: string, opts: LegacyRemoveOpt
   if (!providerId || reserved.has(providerId)) throw new Error('providerId 无效');
   return withConfigTransaction(CODEX_DIR, FILES, commit => {
     assertPreview(opts);
-    if (readState()) throw new Error('这份 Codex 配置有 AO 所有权记录，请用「恢复切换前配置」');
+    if (readState()) throw new Error('这份 Codex 配置有 momogsm 所有权记录，请用「恢复切换前配置」');
     const doc = readForWrite(CONFIG_TOML, 'toml');
-    if (doc.model_provider !== providerId) throw new Error('当前 Codex 没有在使用 AO 中转，无需移除');
+    if (doc.model_provider !== providerId) throw new Error('当前 Codex 没有在使用 momogsm 中转，无需移除');
     const table = doc.model_providers?.[providerId];
     if (opts.expectedBaseUrl !== undefined && table?.base_url !== opts.expectedBaseUrl) {
       throw new CodexConfigChangedError();
@@ -299,12 +299,12 @@ export function adoptLegacyCodexRelay(providerId: string, opts: { expectedBaseUr
   if (!providerId || reserved.has(providerId)) throw new Error('providerId 无效');
   withConfigTransaction(CODEX_DIR, FILES, commit => {
     assertPreview(opts);
-    if (readState()) throw new Error('这份 Codex 配置已经由 AO 管理');
+    if (readState()) throw new Error('这份 Codex 配置已经由 momogsm 管理');
     const doc = readForWrite(CONFIG_TOML, 'toml');
     const auth = readForWrite(AUTH_JSON, 'json');
-    if (doc.model_provider !== providerId) throw new Error('当前 Codex 没有在使用 AO 中转');
+    if (doc.model_provider !== providerId) throw new Error('当前 Codex 没有在使用 momogsm 中转');
     const table = doc.model_providers?.[providerId];
-    if (!table || typeof table !== 'object' || Array.isArray(table)) throw new Error('找不到 AO 中转的 provider 表，请重新保存中转');
+    if (!table || typeof table !== 'object' || Array.isArray(table)) throw new Error('找不到 momogsm 中转的 provider 表，请重新保存中转');
     if (opts.expectedBaseUrl !== undefined && table.base_url !== opts.expectedBaseUrl) {
       throw new CodexConfigChangedError();
     }

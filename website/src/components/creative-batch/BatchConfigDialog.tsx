@@ -58,7 +58,7 @@ export function BatchConfigDialog({ items, initialRunId, onClose, onSubmitted }:
     let alive = true;
     api.creativeBatchCapability()
       .then((value) => { if (alive) setCapability(value); })
-      .catch(() => { if (alive) setCapability({ ok: false, available: false, reasonCode: "no_engine", message: en ? "Batch generation needs the local AO engine." : "批量出图需要本地 AO 引擎。" }); });
+      .catch(() => { if (alive) setCapability({ ok: false, available: false, reasonCode: "no_engine", message: en ? "Batch generation needs the local engine." : "批量出图需要本地引擎。" }); });
     return () => { alive = false; };
   }, [en]);
 
@@ -170,9 +170,9 @@ export function BatchConfigDialog({ items, initialRunId, onClose, onSubmitted }:
             <p className="flex items-start gap-2 text-amber-700 dark:text-amber-300"><AlertCircle className="mt-0.5 size-4 shrink-0" />{capability.message || (en ? "Batch generation is not available." : "批量出图暂不可用。")}</p>
             {capability.reasonCode === "no_engine" ? (
               <>
-                <p className="mt-3 leading-relaxed">{en ? "Select multiple prompts, generate images in a batch, and reopen saved tasks to view progress and results. Use the desktop app or local Studio to run this feature; the public website introduces it." : "勾选多条提示词即可批量出图，生成记录支持查看进度和结果。请在桌面 App 或本地工作台使用，官网提供功能介绍。"}</p>
-                <a href="https://github.com/jnMetaCode/agency-orchestrator/releases/latest" target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-primary hover:underline"><Download className="size-4" />{en ? "Download desktop app" : "下载桌面版"}</a>
-                <p className="mt-2 text-xs text-muted-foreground">{en ? "CLI users: run ao web, then open the Creative Library on your local site." : "命令行用户可运行 ao web，再打开本地站点的创意库。"}</p>
+                <p className="mt-3 leading-relaxed">{en ? "Select multiple prompts, generate images in a batch, and reopen saved tasks to view progress and results. Run this feature in your local Studio; this demo site only introduces it." : "勾选多条提示词即可批量出图，生成记录支持查看进度和结果。请在本地工作台使用，演示站只做功能介绍。"}</p>
+                <a href="/docs/install" className="mt-3 inline-flex items-center gap-1 text-primary hover:underline">{en ? "How to run locally" : "查看本机部署方法"}</a>
+                <p className="mt-2 text-xs text-muted-foreground">{en ? "Run ao web, then open the Creative Library on your local site." : "本机运行 ao web，再打开本地站点的创意库。"}</p>
               </>
             ) : <a href="/studio?tab=providers" className="mt-3 inline-flex text-primary hover:underline">{en ? "Open provider settings" : "打开供应商配置"}</a>}
           </div>

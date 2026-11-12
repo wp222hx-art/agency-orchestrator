@@ -1,9 +1,9 @@
-// 站内更新日志：直接读取仓库根的 CHANGELOG.md（?raw 内联），解析成按版本的条目。
-// 维护更新日志只需改根目录 CHANGELOG.md，本页自动同步。
-import raw from "../../../CHANGELOG.md?raw";
+// 站内更新日志：读取 momogsm 自己的 src/content/changelog.md（?raw 内联），解析成条目。
+// 维护更新日志只需改那一个文件，本页自动同步。仓库根的 CHANGELOG.md 是引擎的历史记录，不在界面展示。
+import raw from "@/content/changelog.md?raw";
 
 export interface ChangelogEntry {
-  /** 版本号，如 "0.6.17" */
+  /** 条目标识：日期（如 "2026-11-12"）或版本号 */
   version: string;
   /** 日期字符串，如 "2026-04-29"（可能为空） */
   date: string;

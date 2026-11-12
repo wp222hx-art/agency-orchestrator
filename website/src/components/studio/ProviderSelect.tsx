@@ -1,6 +1,7 @@
 import { Check, ChevronDown, Settings2, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { SITE } from "@/lib/site";
 import { api, API_PROVIDERS, CLI_PROVIDER_IDS, CLI_RELAY_PRESETS, PROVIDER_LABELS, relayPresetClis, type CliRelayPreset, type CustomProviderMeta, type RemoteProviderMeta } from "@/lib/studio";
 import { sponsorsByTier } from "@/content/sponsors";
 import { cn } from "@/lib/utils";
@@ -61,9 +62,9 @@ export function ProviderSelect({ value, onChange, onOpenProviders }: { value: st
       ?? customProviders.find((c) => c.id === p)?.name
       ?? remoteProviders.find((r) => r.id === p)?.name
       ?? p;
-  const isFlagship = (p: string) => !!FLAGSHIP_ID && p === FLAGSHIP_ID;
-  const isAdvanced = (p: string) => ADVANCED_IDS.includes(p);
-  const isSponsor = (p: string) => SPONSOR_IDS.includes(p) || !!remoteProviders.find((r) => r.id === p)?.sponsor;
+  const isFlagship = (p: string) => SITE.showSponsorMarks && !!FLAGSHIP_ID && p === FLAGSHIP_ID;
+  const isAdvanced = (p: string) => SITE.showSponsorMarks && ADVANCED_IDS.includes(p);
+  const isSponsor = (p: string) => SITE.showSponsorMarks && (SPONSOR_IDS.includes(p) || !!remoteProviders.find((r) => r.id === p)?.sponsor);
   const selectedFlagship = isFlagship(value);
   const selectedAdvanced = isAdvanced(value);
 
@@ -90,7 +91,7 @@ export function ProviderSelect({ value, onChange, onOpenProviders }: { value: st
           >
             <span className="size-4 shrink-0" />
             <span className="min-w-0 flex-1 truncate">{r.name}</span>
-            {r.sponsor && (
+            {SITE.showSponsorMarks && r.sponsor && (
               <span className="shrink-0 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
                 {g.sponsorTag}
               </span>
@@ -138,7 +139,7 @@ export function ProviderSelect({ value, onChange, onOpenProviders }: { value: st
         >
           <span className="size-4 shrink-0 text-center text-xs">🎬</span>
           <span className="min-w-0 flex-1 truncate">{labelFor(p.id)}</span>
-          {p.sponsor && <span className="shrink-0 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">{g.sponsorTag}</span>}
+          {SITE.showSponsorMarks && p.sponsor && <span className="shrink-0 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">{g.sponsorTag}</span>}
           {keyed.has(p.id) && <Check className="size-4 shrink-0 text-gold" />}
           <span className="inline-flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground"><Settings2 className="size-3" />{g.mediaGoConfigure}</span>
         </button>

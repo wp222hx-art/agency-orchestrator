@@ -17,7 +17,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const siteRoot = resolve(__dirname, "..");
 const repoRoot = resolve(siteRoot, "..");
 const dist = join(siteRoot, "dist");
-const ORIGIN = "https://ao.aiolaola.com";
+// 站点域名：momogsm 还没有固定的公开域名，默认留空（canonical / sitemap 用站内相对地址）。
+// 上线后用环境变量 SITE_ORIGIN=https://你的域名 构建即可生成绝对地址。
+const ORIGIN = (process.env.SITE_ORIGIN || "").replace(/\/$/, "");
 
 if (!existsSync(join(dist, "index.html"))) {
   console.error("dist/ 不存在或没有 index.html —— 先跑 vite build 再执行本脚本。");
@@ -33,8 +35,8 @@ const workflows = JSON.parse(readFileSync(join(siteRoot, "src/content/workflows.
 // ── 页面骨架（轻量静态页：零 JS、内联 CSS、亮暗自适应，与产品报告页同一气质）──
 function page({ title, description, canonical, body, lang = "zh" }) {
   const L = lang === "en"
-    ? { experts: "267 expert roles", evals: "Evals", docs: "Docs", tagline: "Open-source AI expert-team orchestrator — one sentence in, a full plan out" }
-    : { experts: "267 个专家角色", evals: "评测", docs: "文档", tagline: "开源 AI 专家团队编排器 —— 一句话，让多个 AI 角色自动协作" };
+    ? { experts: "267 expert roles", evals: "Evals", docs: "Docs", tagline: "momogsm — matched AI expert teams for industry, commerce and trade", notices: "Open-source notices" }
+    : { experts: "267 个专家角色", evals: "评测", docs: "文档", tagline: "momogsm —— 为工业、商业、贸易企业匹配 AI 专家团队", notices: "开源许可声明" };
   return `<!doctype html>
 <html lang="${lang === "en" ? "en" : "zh-CN"}">
 <head>
@@ -77,12 +79,11 @@ function page({ title, description, canonical, body, lang = "zh" }) {
 </head>
 <body>
 <div class="page">
-  <nav><a href="/">Agency Orchestrator</a> · <a href="/experts">${L.experts}</a> · <a href="${lang === "en" ? "/en/evals/" : "/evals/"}">${L.evals}</a> · <a href="/docs">${L.docs}</a> · <a href="https://github.com/jnMetaCode/agency-orchestrator">GitHub</a></nav>
+  <nav><a href="/">momogsm</a> · <a href="/experts">${L.experts}</a> · <a href="${lang === "en" ? "/en/evals/" : "/evals/"}">${L.evals}</a> · <a href="/docs">${L.docs}</a></nav>
 ${body}
   <footer>
     <span>${L.tagline}</span>
-    <span><code>npm i -g agency-orchestrator</code></span>
-    <a href="https://github.com/jnMetaCode/agency-orchestrator">github.com/jnMetaCode/agency-orchestrator</a>
+    <a href="/licenses">${L.notices}</a>
   </footer>
 </div>
 </body>
@@ -120,13 +121,12 @@ for (const e of experts) {
   - id: consult
     role: "${esc(roleRef)}"
     task: "你的任务描述"</code></pre>
-    <p class="desc">或者一句话自动组队（AO 会按任务从 267 个角色中挑人）：</p>
+    <p class="desc">或者一句话自动组队（momogsm 会按任务从 267 个角色中挑人）：</p>
     <pre><code>ao compose "描述你的任务" --run</code></pre>
 
     <h2>装进你的编程工具</h2>
     <p class="desc">这个角色可以作为子代理安装进 Claude Code / Cursor / Copilot 等工具：</p>
-    <pre><code>npm i -g agency-orchestrator
-ao install --tool claude-code --lang zh</code></pre>
+    <pre><code>ao install --tool claude-code --lang zh</code></pre>
 ${excerpt ? `
     <h2>系统提示词（节选）</h2>
     <p class="excerpt">${esc(excerpt)}</p>
@@ -136,7 +136,7 @@ ${related.length ? `
     <ul class="plain">${related.map((r) => `<li><a href="/experts/${esc(r.id)}/">${esc(r.emoji ?? "")} ${esc(r.name)}</a></li>`).join("")}</ul>` : ""}
   </article>`;
   emit(join("experts", ...e.id.split("/")), page({
-    title: `${e.name}（AI ${e.categoryName ?? ""}角色）· Agency Orchestrator`,
+    title: `${e.name}（AI ${e.categoryName ?? ""}角色）· momogsm`,
     description: (e.description ?? "").slice(0, 150),
     canonical: `${ORIGIN}/experts/${e.id}/`,
     body,
@@ -163,13 +163,12 @@ for (const w of workflows) {
     <ol class="steps">${steps.map((s, i) => `<li>${i + 1}. ${esc(s.emoji ?? "")} <strong>${esc(s.name ?? s.id)}</strong>${s.role ? `<span class="role">${esc(s.role)}</span>` : ""}</li>`).join("")}</ol>
 
     <h2>怎么跑</h2>
-    <p class="desc">装好 AO 后，在网页 Studio（<code>ao web</code>）的「工作流模板」里一键运行；或命令行：</p>
-    <pre><code>npm i -g agency-orchestrator
-ao web   # 图形界面，模板一键运行</code></pre>
+    <p class="desc">部署好 momogsm 后，在工作台（<code>ao web</code>）的「工作流模板」里一键运行：</p>
+    <pre><code>ao web   # 图形界面，模板一键运行</code></pre>
     <p class="desc">支持 11 种大模型（推荐 DeepSeek，也有 7 种免 key 方式），全程本地运行、密钥不出机器。</p>
   </article>`;
   emit(join("workflows", slug), page({
-    title: `${w.name} · AO 工作流模板`,
+    title: `${w.name} · momogsm 工作流模板`,
     description: (w.description ?? "").slice(0, 150),
     canonical: `${ORIGIN}/workflows/${encodeURI(slug)}/`,
     body,
@@ -229,7 +228,7 @@ ao web   # 图形界面，模板一键运行</code></pre>
     ${cp.image ? `<p><img src="${esc(cp.image)}" alt="${esc(cp.title)} 示例图" loading="lazy" style="max-width:100%;border-radius:10px;border:1px solid var(--line)"></p>` : ""}
     <h2>提示词（复制即用）</h2>
     <pre><code>${esc(cp.prompt ?? "")}</code></pre>
-    <p class="desc">在 <a href="/creative">AO 创意库</a> 可以直接选服务商一键出图；或在工作流里用 <code>type: image</code> 步骤把它接进内容流水线。</p>
+    <p class="desc">在 <a href="/creative">momogsm 创意库</a> 可以直接选服务商一键出图；或在工作流里用 <code>type: image</code> 步骤把它接进内容流水线。</p>
     <h2>署名与来源</h2>
     <p class="desc">${cp.author ? `作者：${cp.authorUrl ? `<a href="${esc(cp.authorUrl)}">${esc(cp.author)}</a>` : esc(cp.author)} · ` : ""}${
       cp._extra
@@ -252,12 +251,12 @@ ${related.length ? `
     const body = `
   <article class="card">
     <h1>${esc(cat)} —— AI 绘图提示词合集（${items.length} 条）</h1>
-    <p class="desc">每条都可复制即用，也可以在 <a href="/creative">AO 创意库</a> 一键出图。收录自 ${licenseLine}。</p>
+    <p class="desc">每条都可复制即用，也可以在 <a href="/creative">momogsm 创意库</a> 一键出图。收录自 ${licenseLine}。</p>
     <ol class="steps">${items.map((it) => `<li><a href="/creative/p/${esc(it.id)}/">${esc(it.title)}</a><span class="role">${esc((it.description ?? "").slice(0, 60))}</span></li>`).join("")}</ol>
   </article>`;
     emit(join("creative", "c", catSlug(cat)), page({
-      title: `${cat} AI 绘图提示词合集 · Agency Orchestrator`,
-      description: `${items.length} 条${cat}方向的 AI 绘图提示词，可复制即用或在 AO 创意库一键出图。`,
+      title: `${cat} AI 绘图提示词合集 · momogsm`,
+      description: `${items.length} 条${cat}方向的 AI 绘图提示词，可复制即用或在 momogsm 创意库一键出图。`,
       canonical: `${ORIGIN}/creative/c/${catSlug(cat)}/`,
       body,
     }));
@@ -276,8 +275,7 @@ ${related.length ? `
     <p class="chip">盲评 · 双向评审抵消位置偏置 · 多次取平均 · 持续更新</p>
     ${mdHtml}
     <h2>自己复现</h2>
-    <pre><code>git clone https://github.com/jnMetaCode/agency-orchestrator
-npm install && npm run eval</code></pre>
+    <pre><code>npm install && npm run eval</code></pre>
   </article>
   <style>
     .eval-doc h1 { font-size:24px; } .eval-doc h2 { font-size:18px; margin-top:28px; }
@@ -286,8 +284,8 @@ npm install && npm run eval</code></pre>
     .eval-doc blockquote { margin:12px 0; padding:2px 16px; border-left:3px solid var(--accent); color:var(--muted); }
   </style>`;
     emit("evals", page({
-      title: "多智能体什么时候真的有用——盲评数据 · Agency Orchestrator",
-      description: "AO 的公开质量评测：多角色协作 vs 单次 prompt，盲评、双向评审、多次平均。结论是 Goldilocks 非单调——中档模型（DeepSeek）上多智能体明显更好，极弱模型上反而更差。含复现方法与边界说明。",
+      title: "多智能体什么时候真的有用——盲评数据 · momogsm",
+      description: "momogsm 所用引擎的公开质量评测：多角色协作 vs 单次 prompt，盲评、双向评审、多次平均。结论是 Goldilocks 非单调——中档模型（DeepSeek）上多智能体明显更好，极弱模型上反而更差。含复现方法与边界说明。",
       canonical: `${ORIGIN}/evals/`,
       body,
     }));
@@ -309,7 +307,7 @@ npm install && npm run eval</code></pre>
     .eval-doc blockquote { margin:12px 0; padding:2px 16px; border-left:3px solid var(--accent); color:var(--muted); }
   </style>`;
     emit(join("en", "evals"), page({
-      title: "When do multi-agent pipelines beat a single prompt? · Agency Orchestrator",
+      title: "When do multi-agent pipelines beat a single prompt? · momogsm",
       description: "Blind-judged evals of multi-agent vs one-shot prompting. The result is non-monotonic: mid-tier models (DeepSeek) gain clearly from multi-agent; very weak models get worse; frontier models tie. Full data, bugs found, limits, and how to reproduce.",
       canonical: `${ORIGIN}/en/evals/`,
       body,
@@ -320,14 +318,19 @@ npm install && npm run eval</code></pre>
 }
 
 // ── sitemap：核心路由 + 全部生成页 ──
-const core = ["", "experts", "creative", "prompt", "studio", "docs", "tutorials", "sponsors", "changelog"]
-  .map((p) => `${ORIGIN}/${p}${p ? "" : ""}`);
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
+const core = ["", "enterprise", "experts", "creative", "prompt", "studio", "docs", "tutorials", "changelog", "licenses"]
+  .map((p) => `${ORIGIN}/${p}`);
+if (ORIGIN) {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${core.map((u) => `  <url><loc>${u || ORIGIN + "/"}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>`).join("\n")}
+${core.map((u) => `  <url><loc>${u}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>`).join("\n")}
 ${urls.map((u) => `  <url><loc>${encodeURI(u)}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`).join("\n")}
 </urlset>
 `;
-writeFileSync(join(dist, "sitemap.xml"), xml, "utf-8");
+  writeFileSync(join(dist, "sitemap.xml"), xml, "utf-8");
+} else {
+  // sitemap 必须是绝对地址；没有域名就不生成（不写别人的域名进去）
+  console.log("ℹ️  未设置 SITE_ORIGIN：跳过 sitemap.xml");
+}
 
-console.log(`✅ SEO 静态页：${roleCount} 个专家页 + ${wfCount} 个工作流页 + sitemap（共 ${urls.length + core.length} 条 URL）→ dist/`);
+console.log(`✅ SEO 静态页：${roleCount} 个专家页 + ${wfCount} 个工作流页（共 ${urls.length} 个生成页）→ dist/`);

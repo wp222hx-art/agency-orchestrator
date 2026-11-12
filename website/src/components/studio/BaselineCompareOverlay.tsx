@@ -128,7 +128,7 @@ export function BaselineCompareOverlay({
         {state === "error" && <p className="m-auto max-w-md text-center text-sm text-red-500">{err}</p>}
         {state === "done" && result && (
           <>
-            <Pane title={zh ? "多智能体（AO 工作流）" : "Multi-agent (AO workflow)"} highlight={v?.winner === "multi-agent"} text={result.multiOutput} empty={zh ? "（无产出）" : "(no output)"} />
+            <Pane title={zh ? "多智能体（momogsm 工作流）" : "Multi-agent (momogsm workflow)"} highlight={v?.winner === "multi-agent"} text={result.multiOutput} empty={zh ? "（无产出）" : "(no output)"} />
             <Pane title={zh ? "单次基线（一句话直接要成品）" : "Single-shot baseline"} highlight={v?.winner === "baseline"} text={result.baselineOutput} empty={zh ? "（无产出）" : "(no output)"} />
           </>
         )}

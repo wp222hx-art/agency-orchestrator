@@ -146,13 +146,17 @@ const dict: Dict = {
   'dag.deps': { zh: '依赖', en: 'depends on' },
   'dag.condition': { zh: '条件', en: 'condition' },
   'dag.loop': { zh: '循环: → {to} (最多 {n} 次)', en: 'loop: → {to} (max {n} iter)' },
+  'upgrade.unavailable': {
+    zh: '当前版本 {v}。momogsm 没有在线升级渠道：请从你的 momogsm 源码目录获取更新后重新构建（npm install && npm run build && npm run build:studio）。',
+    en: 'Current version {v}. momogsm has no online upgrade channel: update your momogsm source directory and rebuild (npm install && npm run build && npm run build:studio).',
+  },
   'upgrade.checking': {
     zh: '正在检查 {pkg} 的最新版本...',
     en: 'Checking latest version of {pkg}...',
   },
   'upgrade.fetch_failed': {
-    zh: '✗ 无法获取最新版本（网络问题？）。可稍后重试，或手动运行 npm i -g agency-orchestrator@latest',
-    en: '✗ Could not fetch latest version (network issue?). Retry later, or run npm i -g agency-orchestrator@latest manually',
+    zh: '✗ 无法获取最新版本（网络问题？）。可稍后重试',
+    en: '✗ Could not fetch latest version (network issue?). Retry later',
   },
   'upgrade.up_to_date': {
     zh: '✓ 已是最新版本 ({v})',
@@ -180,8 +184,8 @@ const dict: Dict = {
   },
   'help.text': {
     zh: `
-  agency-orchestrator — 多智能体工作流引擎
-  基于 agency-agents-zh 的多智能体编排引擎
+  momogsm — 多智能体工作流引擎（命令行 ao）
+  YAML 定义工作流 · 内置专家库 · 自动 DAG 并行
 
   快速开始:
     ao web                            网页图形界面（推荐首次使用：勾专家/跑模板/看产物全可视化）
@@ -215,7 +219,7 @@ const dict: Dict = {
     plan <workflow.yaml>              查看执行计划
     explain <workflow.yaml>           用自然语言解释执行计划
     roles [关键词] [--agents-dir path] 列出可用角色（带关键词则按 路径/名称/描述 搜索）
-    upgrade [--check]                 自我升级到最新版（--check 只检查不安装）
+    upgrade                           查看当前版本与更新方法
     install --tool <工具>              把角色库装进编码工具（claude-code/cursor/copilot/gemini-cli/qwen/opencode/workbuddy/codebuddy）
     <命令> --help                      查看该命令的用法（不会执行它）
 
@@ -260,11 +264,10 @@ const dict: Dict = {
     ao run workflow.yaml --resume last --from summary     # 从 summary 步骤重新执行
     ao run workflow.yaml --resume ao-output/xxx/          # 指定具体输出目录
 
-  Agents (中文): https://github.com/jnMetaCode/agency-agents-zh
-  Agents (英文): https://github.com/msitarzewski/agency-agents
+  开源许可声明见随包的 THIRD_PARTY_NOTICES.md
   `,
     en: `
-  agency-orchestrator — Multi-Agent Workflow Engine
+  momogsm — Multi-Agent Workflow Engine (CLI: ao)
   YAML-defined workflows · 170+ English roles · auto DAG parallelism
 
   Quick Start:
@@ -298,7 +301,7 @@ const dict: Dict = {
     plan <workflow.yaml>              Show execution plan
     explain <workflow.yaml>           Explain the plan in natural language
     roles [keyword] [--agents-dir path] List roles (with a keyword: search path/name/description)
-    upgrade [--check]                 Self-update to the latest version (--check: check only)
+    upgrade                           Show the current version and how to update
     install --tool <tool>             Install the role library into a coding tool (claude-code/cursor/copilot/gemini-cli/qwen/opencode/workbuddy/codebuddy)
     <command> --help                  Show that command's usage (without running it)
 
@@ -343,8 +346,7 @@ const dict: Dict = {
     ao run workflow.yaml --resume last --from summary     # Re-run from the summary step
     ao run workflow.yaml --resume ao-output/xxx/          # Point at a specific output dir
 
-  Agents (Chinese): https://github.com/jnMetaCode/agency-agents-zh
-  Agents (English): https://github.com/msitarzewski/agency-agents
+  Open-source notices: see the bundled THIRD_PARTY_NOTICES.md
   `,
   },
 };

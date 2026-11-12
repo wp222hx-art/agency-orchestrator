@@ -135,7 +135,7 @@ export async function startServer(verbose = false): Promise<void> {
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
 
   const server = new McpServer({
-    name: 'agency-orchestrator',
+    name: 'momogsm',
     version: pkg.version || '0.0.0',
   });
 

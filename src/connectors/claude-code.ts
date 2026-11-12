@@ -182,7 +182,7 @@ export class ClaudeCodeConnector implements LLMConnector {
       const notFoundError = () => new Error(
         `找不到 ${command} 命令，请先安装 ${displayName}\n` +
         `安装: ${installHint}\n` +
-        '参考: https://github.com/jnMetaCode/agency-orchestrator#llm-配置'
+        '参考: 站内文档「接入模型」'
       );
       const child = spawnCLI(command, args, {
         env: { ...process.env },

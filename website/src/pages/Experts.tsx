@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { ArrowUpRight, Check, Copy, Search, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, Check, Copy, Search, X } from "lucide-react";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { useSeo } from "@/lib/useSeo";
-import { SITE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import expertsData from "@/content/experts.json";
 
@@ -66,10 +65,10 @@ function Avatar({ e, className }: { e: Expert; className?: string }) {
 }
 
 export default function Experts() {
-  const { t, lang } = useLanguage();
+  const { t, lang, prefix } = useLanguage();
   useSeo(
-    lang === "en" ? "AI Expert Roles in 7 Languages — Engineering / Design / Product / Marketing | Agency Orchestrator"
-      : "AI 专家角色库（7 种语言）— 工程 / 设计 / 产品 / 营销 | Agency Orchestrator",
+    lang === "en" ? "AI Expert Roles in 7 Languages — Engineering / Design / Product / Marketing | momogsm"
+      : "AI 专家角色库（7 种语言）— 工程 / 设计 / 产品 / 营销 | momogsm",
     lang === "en" ? "Browse 1,000+ orchestratable AI expert roles across 7 language libraries. One sentence → AI auto-assembles a team."
       : "浏览 7 个语言库、上千个可编排的 AI 专家角色,一句话让系统自动组队协作完成任务。",
   );
@@ -274,15 +273,13 @@ export default function Experts() {
           )}
 
           <div className="mt-12 text-center">
-            <a
-              href={SITE.rolesRepo}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to={prefix("/licenses")}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-sm font-medium hover:border-primary/40"
             >
-              {x.repoCta}
-              <ArrowUpRight className="size-4 text-primary" />
-            </a>
+              {x.licenseCta}
+              <ArrowRight className="size-4 text-primary" />
+            </Link>
           </div>
         </div>
       </main>

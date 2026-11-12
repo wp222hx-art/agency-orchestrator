@@ -34,7 +34,8 @@ ao run <wf> -i docs=@./materials     # Directory input = knowledge source: text 
 
 ## Community Templates (remote manifest)
 
-`providers-manifest.json` (website repo, served from ao.aiolaola.com) carries `communityTemplates` —
+`providers-manifest.json` carries `communityTemplates`. **The remote manifest is off by default**: momogsm has no manifest
+host of its own, so `web/server.js` fetches nothing unless `AO_MANIFEST_URL` points at a self-hosted copy. When set —
 curated-only import (URL must be listed; optional `sha256` verified). Endpoints in `web/server.js`:
 `GET /api/community/templates`, `POST /api/community/import` (engine-validated, saved to 我的工作流).
 Contribution flow documented in CONTRIBUTING.md. Listing/de-listing needs only a website push, no release.
@@ -62,7 +63,7 @@ bundled dir made all 20 superpowers skills vanish. `AO_SKILLS_DIR` is still an *
 no longer empties the rest.
 
 `ao-skills/shortfilm-prompt` is ours: the 5-part cinematic video-prompt methodology, adapted from
-the sister repo `ai-shortfilm-prompts` (MIT, same author). The upstream `SKILL.md` is an
+the open-source `ai-shortfilm-prompts` (MIT; credited in `THIRD_PARTY_NOTICES.md`). The upstream `SKILL.md` is an
 **interactive** Claude Code skill (it asks via AskUserQuestion, `Read`s template files); AO steps
 have no tools, so injecting it verbatim makes the model ask questions instead of writing a prompt.
 Keep the AO copy single-turn — `test/skills.ts` pins that.
@@ -164,7 +165,7 @@ Before suggesting changes, read the actual outputs:
 
 ## Workflow YAML Format
 
-`schemas/workflow.schema.json` is the editor-facing JSON Schema (published at ao.aiolaola.com/schemas/ via `scripts/publish-schema.mjs`,
+`schemas/workflow.schema.json` is the editor-facing JSON Schema (copied to the site's `/schemas/` by `scripts/publish-schema.mjs`,
 run by website predev/prebuild; also shipped in the npm package). **When you add a YAML field, add it there too** — it uses
 `additionalProperties: false` on purpose (typos like `depend_on` must be flagged), so a forgotten field red-lines valid workflows.
 `test/workflow-schema.ts` pins: all built-in templates pass, parser-rejected shapes are rejected, provider suggestions match the
@@ -339,8 +340,9 @@ stays empty until generated — never ship a placeholder pretending to be a samp
   category chip loads only that chunk, "load all" pulls every chunk (2MB raw, ~640KB gzipped). The pool is
   deliberately kept out of the sitemap.
   Browsable at `/creative` with one-click generation via `POST /api/image/generate`.
-- **Video prompts** live in the **sister repo** `ai-shortfilm-prompts` (22 genre templates + 6 reusable
-  building blocks, its own site at prompts.aiolaola.com). AO only *consumes* them: run
+- **Video prompts** come from the open-source `ai-shortfilm-prompts` (22 genre templates + 6 reusable
+  building blocks, MIT). The UI never links to that project's site; the per-card author sentence is stripped at render
+  (`stripCredit` in `CreativeLibrary.tsx`) and attribution lives in the page credits block + `/licenses`. To refresh, run
   `npm --prefix website run sync:video-prompts` to refresh `website/src/content/video-prompts.json`
   from that repo's `templates/index.json` (generated there by `scripts/gen_index.py`).
   **Never hand-edit the synced file**, and never add video prompts to `agency-agents-zh` — that
@@ -366,8 +368,113 @@ stays empty until generated — never ship a placeholder pretending to be a samp
   `awesome_sora2_prompt`, MIT, via `scripts/import-video-community.mjs`). Imports **drop prompts
   naming real people or IP** — same rule the 视频提示词工程师 role follows — and the UI says the
   filter is best-effort rather than pretending it is exhaustive.
-- No SEO pages for video prompts yet — the same text under two domains dilutes each other, so the
-  canonical decision (ao.aiolaola.com vs prompts.aiolaola.com) has to be made first.
+- No SEO pages for video prompts yet.
+
+## Enterprise AI enablement (expert matching)
+
+Studio page `/enterprise` (`website/src/pages/EnterpriseMatch.tsx` + `website/src/components/enterprise/`, backend
+`web/enterprise-match.js` + `web/enterprise-taxonomy.js` + `web/enterprise-agents.js` + `web/enterprise-twin.js`, routes
+`/api/enterprise/*`). Four tabs (`?tab=twin|taxonomy|agents`, default match): 匹配专家团队 / 数字孪生推演 / 我的行业体系 / 智能体后台.
+Matching: sector (工业 industry / 商业 commerce / 贸易 trade) + industry + company name → momo智脑 web search + one analysis call →
+experts picked from the selected role library for four phases (diagnose / design / promote / service) → a generated workflow
+saved to 我的工作流 and run through the normal `/api/run`.
+
+- **The taxonomy is user data.** `web/enterprise-taxonomy.js` holds the built-in defaults (3 fixed sectors, 24 industries) and
+  the store; the user's version lives in `<data dir>/.local/enterprise-taxonomy.json` (page tab 「我的行业体系」: add / edit /
+  delete industries, sector settings, export / import, restore defaults). Matching, prompts and workflows read
+  `taxonomy.current()`, never the module constants. Sectors cannot be added or renamed (the per-phase anchor experts are keyed by
+  sector); each sector keeps at least one industry and a fallback industry that cannot be deleted or moved.
+  Validation rejects over-limit input instead of truncating it. A corrupt file falls back to defaults, reports why, and is
+  renamed (not overwritten) on the next save; import and reset keep a `.bak`.
+- **Knowledge baseline.** Every industry carries five lists (`KNOWLEDGE_DIMS`: metrics, process, systems, compliance,
+  pitfalls) and every sector a list of principles. `buildWorkflowDoc` writes them into each expert's task (not the report
+  step) under a heading that says it is reference material, not instructions, and that the company's reality wins.
+  The built-in content is an unreviewed draft, and the UI says so; do not describe it as verified, and do not claim it makes
+  agents perform at any particular seniority level. Text is stripped of `{ }` before it reaches a task (template engine).
+  `POST /api/enterprise/taxonomy/draft` asks momo智脑 for a draft of one industry; it returns the draft and never saves it.
+- The sector decides the per-phase anchor experts (`PHASES[].anchors[sector]`), the second search query and the focus line in
+  each task; a user-chosen sector is binding (a model answer outside it is ignored). Name-only fallback: business-model words
+  (贸易 / 进出口 / 超市 …) pick the sector before product words pick the industry, so 钢铁贸易 lands in trade, not steel making.
+- `GET /api/enterprise/candidates` lists experts a user can add to a phase (ranked, or searched with `q`); no model call.
+- **Naming: the model service is called momo智脑 (English UI: MOMO Brain) everywhere** — UI copy, identifiers
+  (`readBrainConfig`, `isBrainPinnedWorkflow`), error codes (`brain_*`), env vars (`AO_MOMO_BRAIN_API_KEY` / `_BASE_URL` /
+  `_MODEL`) and the provider id `momo-brain`. Two things are external facts and cannot be renamed, so they stay in
+  `web/enterprise-match.js` (and the tests that pin them) and nowhere else: the endpoint host `genspark.ai` and the credentials
+  file `~/.genspark_llm.yaml`. `LEGACY_PROVIDER_IDS = ['genspark']` keeps workflows generated before the rename runnable. Do not
+  surface either name in UI text.
+- **momo智脑 is not in `API_PROVIDERS`** (that table is the sponsor shelf). Generated workflows use `llm.provider: momo-brain` +
+  `base_url`, i.e. the engine's existing custom-provider path. The YAML never holds a key: `/api/run` recognises a
+  brain-pinned workflow (`isBrainPinnedWorkflow`), passes the key through the child env `AO_API_KEY`, ignores the
+  `provider` override and strips `AO_PROVIDER` / `AO_MODEL`, and answers 400 `brain_not_configured` when there is no key.
+- Credentials: `AO_MOMO_BRAIN_API_KEY` > the credentials file > `OPENAI_API_KEY` (only when `OPENAI_BASE_URL` is the brain
+  host). The key is only ever sent to the https brain host (`isBrainUrl`).
+- Model: first entry of `TOP_MODEL_PREFERENCE` (`claude-fable-5-2` first) that `/models` actually lists;
+  `AO_MOMO_BRAIN_MODEL` overrides. Matching, twin generation, industry drafts and agent drafts all go through `resolveModel`.
+- **Agent admin (智能体后台, `web/enterprise-agents.js`).** An overlay on the role library, stored in
+  `<data dir>/.local/enterprise-agents.json`; the role `.md` files are never edited. Per agent: enabled / disabled (disabled
+  agents are filtered out of matching and candidates; 409 `all_agents_disabled` if none are left), iteration notes with a
+  revision counter, the last 10 revisions and rollback (rollback writes a new revision, history is not rewritten), and a usage
+  count (teams it was put into). Global iteration principles (5 defaults, editable, resettable) go into every expert's task;
+  an agent's own notes go into that agent's task, above the "do not fabricate" rule, which they cannot override.
+  `POST /api/enterprise/agents/suggest` drafts notes from the admin's feedback and never saves them.
+  "Iteration" here means admin-maintained instructions and versions that reach the prompt. Agents do not train or rewrite
+  themselves; do not describe it as self-learning.
+- **Digital twin simulation (数字孪生推演, `web/enterprise-twin.js`).** Pick sector + industry (optional company name, size,
+  description of the current situation) → one model call → typical current process, target process, equipment and systems,
+  metric comparison, roadmap, assumptions, risks; the last 30 are kept in `<data dir>/.local/enterprise-twins.json`.
+  It is a simulation ("业务状态孪生"), not a sensor-connected real-time twin, and every number is a model estimate: the page
+  says so at the top and bottom, tags every number 估算 / 实测, and exports carry the notice. Keep it that way; never present
+  the figures as measurements or promised returns. Rules in the code: metrics whose direction contradicts their numbers are
+  dropped; equipment is a category plus key specs, never a vendor or model number; a company's own measured current value
+  (`PUT /api/enterprise/twins/:id/measured`) replaces the estimate as the baseline and is never overwritten by a later
+  estimate; "迭代一版" (`basedOn`) regenerates with the measured values as the baseline and saves a new twin.
+- Search goes through the `gsk` CLI (`AO_GSK_BIN`); without it the analysis runs with no sources. If the model call fails the
+  team is matched by rules and the response says so (`degraded`, `generic`).
+- Page UX: a five-step progress bar with a next-step hint, a first-visit onboarding guide (localStorage
+  `momogsm.enterprise.guide.v1`, reopenable), `?tab=taxonomy` for the taxonomy tab. Dialogs use `useDialog`
+  (`test/studio-a11y.ts` scans `components/enterprise/`); render them outside `space-y-*` containers, whose child margin
+  pushes a `fixed inset-0` overlay down.
+- Tests: `test/enterprise-taxonomy.mjs` (defaults, validation, store), `test/enterprise-match.mjs` (fake model / search,
+  no network) and `test/enterprise-ops.mjs` (agent store, iteration injection, twin normalisation and routes) — all three run
+  under `npm run test:enterprise-match`; `test/studio-jobs.ts` pins the run-route behaviour.
+
+## Brand: momo only (no upstream identifiers in anything a user sees)
+
+The product is **momogsm**, the model service is **momo智脑** (`MOMO Brain` in English). Nothing user-visible may name or link to
+the upstream open-source project this was forked from: no repository / package-registry / download / learning-site links, no
+"AO" as a product name, no sponsor placement. This covers the site, Studio, in-app docs and tutorials, the share report footer,
+exported files, CLI help and error text, the 503 page and the desktop shell.
+
+- **Home page** (`website/src/pages/Home.tsx`): Hero → `Sectors` (工业/商业/贸易 cards → `/enterprise?sector=<id>`, which preselects
+  the sector) → `Flow` (four steps + four phases) → `Modules` (the four `/enterprise` tabs, companion tools, momo智脑 note) →
+  `Preview` (a real screenshot of the twin page, `public/screenshots/momogsm-twin.webp`) → `FinalCta`. Copy is `t.hero` + `t.home`.
+  Every link is in-app. Keep the numbers honest (3 sectors / 24 built-in industries / expert count / 4 phases).
+- **Footer / navbar**: in-app links only. `SITE` (`website/src/lib/site.ts`) has no external URLs.
+- **Licence notices are the one exception and are mandatory.** `THIRD_PARTY_NOTICES.md` (repo root, shipped in the package, rendered
+  at `/licenses`) keeps the Apache-2.0 / MIT / CC BY 4.0 copyright and attribution lines plus the statement of changes. Do not
+  delete it, `LICENSE`, or the credits block at the bottom of `/creative`. These are legal notices, not brand placement.
+- **Sponsors**: the sponsors page, home strip and Studio slot are deleted. Sponsor badges, gold highlight, coupon bar and the
+  need-key sponsor line are gated by `SITE.showSponsorMarks` (false). `neutralLink()` reduces provider sign-up links to the
+  provider's own origin so the upstream project's referral codes are not used. `content/sponsors.ts` and the sponsor fields in
+  `lib/studio.ts` stay because contract tests read them (and `test/anthropic-providers.ts` has a pre-existing failing order check —
+  do not "fix" it).
+- **No update prompts**: `getLatestVersion()` in `web/server.js`, `scheduleUpdateCheck()` in `src/utils/version-check.ts`, the
+  desktop `checkForUpdate()` and `ao upgrade` are all disabled — they queried / installed the upstream package, which would replace
+  momogsm with another product. Re-enable only against a momogsm-owned release channel.
+- **No third-party analytics** in `website/index.html`. `src/lib/track.ts` is a no-op unless a page provides `window.gtag`.
+- **No site origin is assumed**: `gen-seo-pages.mjs` reads `SITE_ORIGIN`; without it canonical URLs are relative and no sitemap is
+  written.
+- **Changelog page** reads `website/src/content/changelog.md` (momogsm's own, dated entries). Root `CHANGELOG.md` is the engine's
+  history and is not shown in the UI.
+- **Access token** is read at app start (`website/src/lib/web-token.ts`, imported by `main.tsx`), not lazily in `lib/studio.ts` —
+  otherwise opening the home page with `?token=` and then navigating into Studio loses it.
+- **Technical identifiers that are not branding and must keep working**: the `ao` command, `AO_*` env vars, `ao-output/`, `~/.ao/`,
+  npm package names (`agency-orchestrator`, `agency-agents-zh`, …) in `package.json` / role-library loading / `agents_dir` values,
+  the `agency-agents/` directory. Root `README*.md`, `CONTRIBUTING.md`, `docs/` and `desktop/package.json` still describe the
+  upstream project and are not shown anywhere in the product.
+
+The navbar has no language / theme controls: language follows `/en` routes, `?lang=zh|en`, then the browser; theme follows the
+system preference.
 
 ## Role Directory
 

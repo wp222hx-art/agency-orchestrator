@@ -1,36 +1,37 @@
-import { Github } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { SITE } from "@/lib/site";
 
+// 页脚只放 momogsm 自己的站内入口：不挂外部仓库 / 包管理站 / 第三方学习站。
+// 依许可证必须保留的版权与署名统一收在「开源许可声明」一页，不占品牌位。
 export function SiteFooter() {
-  const { t, prefix, lang } = useLanguage();
+  const { t, prefix } = useLanguage();
   const f = t.footer;
 
   const cols = [
     {
       title: f.product,
       links: [
-        { label: f.links.features, href: prefix("/#features"), external: false },
-        { label: f.links.sponsors, href: prefix("/sponsors"), external: false },
-        { label: f.links.docs, href: prefix("/docs"), external: false },
-        { label: f.links.tutorials, href: prefix("/tutorials"), external: false },
+        { label: f.links.studio, href: prefix("/studio") },
+        { label: f.links.experts, href: prefix("/experts") },
+        { label: f.links.enterprise, href: prefix("/enterprise") },
+        { label: f.links.creative, href: prefix("/creative") },
+        { label: f.links.prompt, href: prefix("/prompt") },
       ],
     },
     {
-      title: f.resources,
+      title: f.help,
       links: [
-        { label: f.links.github, href: SITE.repo, external: true },
-        { label: f.links.roles, href: SITE.rolesRepo, external: true },
-        { label: f.links.changelog, href: prefix("/changelog"), external: false },
-        { label: f.links.license, href: SITE.license, external: true },
+        { label: f.links.docs, href: prefix("/docs") },
+        { label: f.links.tutorials, href: prefix("/tutorials") },
+        { label: f.links.changelog, href: prefix("/changelog") },
       ],
     },
     {
-      title: f.community,
+      title: f.about,
       links: [
-        { label: f.links.issues, href: SITE.issues, external: true },
-        { label: "npm", href: SITE.npm, external: true },
+        { label: f.links.features, href: prefix("/#modules") },
+        { label: f.links.licenses, href: prefix("/licenses") },
       ],
     },
   ];
@@ -40,54 +41,18 @@ export function SiteFooter() {
       <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Link to={prefix("/")} className="flex items-center gap-2.5 font-bold">
-            <img src="/logo/ao-app-icon.svg" alt="AO" className="h-8 w-8" />
-            Agency Orchestrator
+            <img src={SITE.logo} alt="" className="h-8 w-8" />
+            {SITE.name}
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">{f.tagline}</p>
-          <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-            {f.supportLine}{" "}
-            <a
-              href={SITE.rolesRepo}
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium text-foreground underline-offset-2 hover:underline"
-            >
-              agency-agents ↗
-            </a>
-          </p>
-          <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-            {lang === "zh" ? "免费配套学习 " : "Free companion learning "}
-            <a
-              href={SITE.platform}
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium text-foreground underline-offset-2 hover:underline"
-            >
-              {lang === "zh" ? "从零学会 AI 编程 ↗" : "Learn AI coding from scratch ↗"}
-            </a>
-          </p>
-          <a
-            href={SITE.repo}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border/70 px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Github className="size-4" />
-            jnMetaCode/agency-orchestrator
-          </a>
+          <p className="mt-2 max-w-xs text-sm text-muted-foreground">{f.brandLine}</p>
         </div>
         {cols.map((col) => (
           <div key={col.title}>
             <h4 className="text-sm font-semibold">{col.title}</h4>
             <ul className="mt-3 space-y-2.5 text-sm">
               {col.links.map((l) =>
-                l.external ? (
-                  <li key={l.label}>
-                    <a href={l.href} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground">
-                      {l.label}
-                    </a>
-                  </li>
-                ) : l.href.includes("#") ? (
+                l.href.includes("#") ? (
                   <li key={l.label}>
                     <a href={l.href} className="text-muted-foreground hover:text-foreground">
                       {l.label}
@@ -107,8 +72,10 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border/60">
         <div className="container-page flex flex-col items-center justify-between gap-2 py-5 text-xs text-muted-foreground sm:flex-row">
-          <span>© {SITE.name}</span>
-          <span>{f.copyright}</span>
+          <span>© {new Date().getFullYear()} {SITE.name}</span>
+          <Link to={prefix("/licenses")} className="hover:text-foreground">
+            {f.copyright}
+          </Link>
         </div>
       </div>
     </footer>

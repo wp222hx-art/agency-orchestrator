@@ -2,6 +2,7 @@ import { Check, ChevronDown, Cloud, Copy, Loader2, MonitorCog, Plus, Settings2, 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { SITE } from "@/lib/site";
 import { api, API_PROVIDERS, CLI_PROVIDER_NOTES, CLI_RELAY_GLOBAL_WRITE, CLI_RELAY_PRESETS, CLI_RELAY_SUPPORT, DEFAULT_PROVIDER, DEPRECATED_CLI_PROVIDERS, PROVIDER_LABELS, providerLogo, relayPresetClis, type CliRelayPreset, type ConfigResponse } from "@/lib/studio";
 import { cn } from "@/lib/utils";
 import { ClaudeHealthCard } from "./ClaudeHealthCard";
@@ -61,7 +62,7 @@ function ProviderRow({
     <div
       className={cn(
         "flex items-center justify-between gap-2 rounded-xl border bg-card/60 px-4 py-3",
-        flagship ? "border-gold/60 bg-gold/[0.04]" : advanced ? "border-gold/60 bg-gold/[0.04]" : active ? "border-primary/60" : "border-border/70",
+        SITE.showSponsorMarks && (flagship || advanced) ? "border-gold/60 bg-gold/[0.04]" : active ? "border-primary/60" : "border-border/70",
       )}
     >
       <span className="flex min-w-0 items-center gap-2.5">
@@ -71,17 +72,17 @@ function ProviderRow({
         <span className="min-w-0">
         <span className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{name}</span>
-          {flagship && (
+          {SITE.showSponsorMarks && flagship && (
             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
               <Sparkles className="size-2.5" /> {t.studio.providers.flagshipTag}
             </span>
           )}
-          {advanced && (
+          {SITE.showSponsorMarks && advanced && (
             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
               <Sparkles className="size-2.5" /> {t.studio.providers.advancedTag}
             </span>
           )}
-          {sponsor && (
+          {SITE.showSponsorMarks && sponsor && (
             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
               <Sparkles className="size-2.5" /> {t.studio.providers.sponsorTag}
             </span>
@@ -146,7 +147,7 @@ function RelayVendorRow({ preset, onConfigure }: { preset: CliRelayPreset; onCon
       <span className="min-w-0">
         <span className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{preset.name}</span>
-          {preset.sponsor && (
+          {SITE.showSponsorMarks && preset.sponsor && (
             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-semibold text-gold">
               <Sparkles className="size-2.5" /> {t.studio.providers.sponsorTag}
             </span>

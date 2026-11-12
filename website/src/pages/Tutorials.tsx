@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Clock, Mail, User } from "lucide-react";
+import { ArrowUpRight, Clock, User } from "lucide-react";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { useSeo } from "@/lib/useSeo";
-import { SITE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import {
   tutorials,
@@ -21,8 +20,8 @@ type SrcFilter = TutorialSource | "all";
 export default function Tutorials() {
   const { t, lang, prefix } = useLanguage();
   useSeo(
-    lang === "en" ? "Tutorials — Build AI multi-agent workflows | Agency Orchestrator"
-      : "教程 — 用 AI 多智能体工作流落地任务 | Agency Orchestrator",
+    lang === "en" ? "Tutorials — Build AI multi-agent workflows | momogsm"
+      : "教程 — 用 AI 多智能体工作流落地任务 | momogsm",
     lang === "en" ? "Step-by-step guides: one sentence to a full plan, build a team, materialize code, and more."
       : "手把手教程:一句话出完整方案、组建团队、生成代码项目等。",
   );
@@ -64,14 +63,6 @@ export default function Tutorials() {
             </span>
             <h1 className="mt-5 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">{tut.title}</h1>
             <p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-muted-foreground">{tut.subtitle}</p>
-            <div className="mt-6">
-              <Button asChild variant="outline">
-                <a href={`mailto:${SITE.sponsorEmail}?subject=Tutorial%20submission`}>
-                  <Mail className="size-4" />
-                  {tut.submit}
-                </a>
-              </Button>
-            </div>
           </div>
 
           {/* Filters */}

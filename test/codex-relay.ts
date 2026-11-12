@@ -330,7 +330,7 @@ try {
     writeFileSync(join(d, 'config.toml'), 'model_provider = "ao-relay-x"\n');
     let notOurs = '';
     try { m.removeLegacyCodexRelay('ao-relay'); } catch (err) { notOurs = String(err); }
-    assert(/没有在使用 AO 中转/.test(notOurs), '相似但不是 AO 约定 id：不动');
+    assert(/没有在使用 momogsm 中转/.test(notOurs), '相似但不是 AO 约定 id：不动');
 
     console.log('\n─── 旧版 AO 配置：改由 AO 管理（继续使用） ───');
     reset();
@@ -344,7 +344,7 @@ try {
     assert(st.managed && !st.conflict && st.configured, '接管后状态读回为受管、无冲突、仍在用中转');
     let twice = '';
     try { m.adoptLegacyCodexRelay('ao-relay'); } catch (err) { twice = String(err); }
-    assert(/已经由 AO 管理/.test(twice), '已受管的不重复接管');
+    assert(/已经由 momogsm 管理/.test(twice), '已受管的不重复接管');
     // 接管后照常切到另一家，再恢复：回到「不走中转」，而不是回到旧中转
     m.applyCodexRelay({ providerId: 'ao-relay', name: 'AO', baseUrl: 'https://next.invalid/v1', apiKey: 'sk-next' });
     m.clearCodexRelay('ao-relay');

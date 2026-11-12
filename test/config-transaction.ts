@@ -258,7 +258,7 @@ try {
       try { withConfigTransaction(dir, ['a.json', 'b.json'], () => {}); }
       catch (e) { console.log(e.message); process.exit(2); }
     `);
-    assert(contender.status === 2 && /另一个 AO/.test(contender.stdout), '活跃进程持锁时，另一真实进程无法修改');
+    assert(contender.status === 2 && /另一个 momogsm/.test(contender.stdout), '活跃进程持锁时，另一真实进程无法修改');
   });
   let drift = '';
   try {
@@ -284,7 +284,7 @@ try {
     writeFileSync(join(d, '.ao-config.lock'), ''); // 另一进程刚 open('wx') 还没写入记录
     let busy = '';
     try { withConfigTransaction(d, ['a.json'], () => {}); } catch (e) { busy = String(e); }
-    assert(/另一个 AO/.test(busy) && existsSync(join(d, '.ao-config.lock')), '刚创建的空锁：报暂时占用，不删锁');
+    assert(/另一个 momogsm/.test(busy) && existsSync(join(d, '.ao-config.lock')), '刚创建的空锁：报暂时占用，不删锁');
     const old = new Date(Date.now() - 60_000);
     utimesSync(join(d, '.ao-config.lock'), old, old);
     let stuck = '';
@@ -321,7 +321,7 @@ try {
     let contender = '';
     try { withConfigTransaction(d, ['a.json'], commit => commit([{ name: 'a.json', text: 'parent-wrote' }])); }
     catch (e) { contender = String(e); }
-    assert(lockText === '' && /另一个 AO/.test(contender) && !/无法读取/.test(contender), '对方锁记录还没写完：报暂时占用，不报需人工检查');
+    assert(lockText === '' && /另一个 momogsm/.test(contender) && !/无法读取/.test(contender), '对方锁记录还没写完：报暂时占用，不报需人工检查');
     const code = await exited;
     assert(code === 0 && readFileSync(join(d, 'a.json'), 'utf-8') === 'child-wrote' && !existsSync(join(d, '.ao-config.lock')),
       '持锁进程不受干扰地完成写入并释放锁');

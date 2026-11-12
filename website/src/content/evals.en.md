@@ -1,19 +1,19 @@
 # When do multi-agent pipelines actually beat a single prompt? We measured.
 
-> Blind evaluation results for Agency Orchestrator (AO), an open-source multi-agent workflow
+> Blind evaluation results for the momogsm workflow engine, a multi-agent workflow
 > engine. We publish the losses along with the wins — including the tiers where multi-agent
 > is *worse*. Reproduce it yourself: `npm run eval` in the repo.
 
 ## The question
 
-AO's core bet: **is the output of a multi-role DAG pipeline actually better than what a user
+momogsm's core bet: **is the output of a multi-role DAG pipeline actually better than what a user
 gets from one well-formed prompt?** Marketing says yes. We wanted data.
 
 ## Method
 
-- **Comparison**: same input, run twice — once through AO's multi-agent workflow, once as a
-  single one-shot prompt (simulating a user not using AO at all).
-- **Blind, position-debiased judging**: the judge model doesn't know which output came from AO.
+- **Comparison**: same input, run twice — once through momogsm's multi-agent workflow, once as a
+  single one-shot prompt (simulating a user not using momogsm at all).
+- **Blind, position-debiased judging**: the judge model doesn't know which output came from momogsm.
   Each pair is judged twice with positions swapped (A=multi, B=baseline; then A=baseline,
   B=multi) and scores averaged — this cancels the largest known LLM-judge bias (position).
   If the two directions disagree, the result is flagged low-confidence.
@@ -47,7 +47,7 @@ gets from one well-formed prompt?** Marketing says yes. We wanted data.
 → Multi-agent goes **1–3, and the three losses are 0/3 — it never won those in any run.
 A stable pattern, not noise.**
 
-### Mid-tier generator (DeepSeek — AO's actual default), 3-run average
+### Mid-tier generator (DeepSeek — momogsm's actual default), 3-run average
 
 | Template | Multi-agent | One-shot baseline | Winner | Stability |
 |---|---|---|---|---|
@@ -114,7 +114,7 @@ hallucinated APIs, dropped drafts) — the hand-off chain is an error amplifier.
 handle each specialized sub-task competently, so "research first, then write, then review"
 produces real gains. Strong models are already good enough in one shot.
 
-**The practical takeaway**: AO defaults to DeepSeek, which sits squarely in the
+**The practical takeaway**: momogsm defaults to DeepSeek, which sits squarely in the
 "division-of-labor pays off" sweet spot. **"A cheap-but-capable model + multi-agent
 = better output" is supported by the data** — as long as the default never drops to the
 very-weak tier, where multi-agent actively makes things worse. If you bring a frontier
@@ -142,15 +142,14 @@ than a quality lift.
 - Baseline prompts were mechanically synthesized from the workflow goal + inputs — a skilled
   human prompt would make the baseline stronger.
 - **When a template declares `acceptance`, the blind judge anchors on it — and the baseline never saw
-  it** (see the 2026-09-25 entry). That is a fair measure of "is AO less work to get what you wanted",
+  it** (see the 2026-09-25 entry). That is a fair measure of "is momogsm less work to get what you wanted",
   and a biased one for "are multi-agent pipelines inherently better". Know which question you're asking.
 
 ## Reproduce it
 
 ```bash
-git clone https://github.com/jnMetaCode/agency-orchestrator
 npm install && npm run eval
 ```
 
-Agency Orchestrator is Apache-2.0. One sentence in, a team of AI specialists out —
+The engine is based on Apache-2.0 open-source software (see Open-source notices). One sentence in, a team of AI specialists out —
 model-agnostic (11 providers incl. local Ollama), runs entirely on your machine.

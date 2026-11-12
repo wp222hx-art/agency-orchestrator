@@ -43,5 +43,5 @@ export function selectCLINodeRuntime(
   if (pathNode && pathNode !== current.file && probe(pathNode, env)) {
     return { file: pathNode, version: 'probed', electron: false };
   }
-  throw new Error(`dsh 的入口需要 import.meta.main，但 AO 引擎 Node ${current.version}${current.electron ? '（Electron 内置）' : ''} 不支持，且未找到兼容的外部 Node。请安装 Node 22.x ≥22.18 或 ≥24.2（不含 Node 23），或设置 AO_CLI_NODE_PATH 指向兼容 Node。尚未启动 dsh。`);
+  throw new Error(`dsh 的入口需要 import.meta.main，但 momogsm 引擎 Node ${current.version}${current.electron ? '（Electron 内置）' : ''} 不支持，且未找到兼容的外部 Node。请安装 Node 22.x ≥22.18 或 ≥24.2（不含 Node 23），或设置 AO_CLI_NODE_PATH 指向兼容 Node。尚未启动 dsh。`);
 }

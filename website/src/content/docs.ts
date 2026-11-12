@@ -33,24 +33,24 @@ export const docGroups: DocGroup[] = [
         title: { zh: "软件介绍", en: "Introduction" },
         sections: [
           {
-            heading: { zh: "什么是 Agency Orchestrator", en: "What is Agency Orchestrator" },
+            heading: { zh: "什么是 momogsm", en: "What is momogsm" },
             body: {
-              zh: "Agency Orchestrator（`ao`）是 **agency-agents 专家角色库的编排器**。\n\nagency-agents 里有 276 位打磨好的 AI 专家——营销、工程、设计、产品、财务、法律、销售、学术……每一位都是一段精调过的系统提示词，让模型稳定地以该领域专家的身份输出。但单独一位专家只能解决一个环节；真实任务往往要**多位专家分工协作**：研究员先调研、分析师再拆解、撰稿人成文、收口角色把关。\n\nAO 就是把这些专家组队起来的那一层：你用一句话或一份 YAML 描述需求，AO 自动选出合适的专家、按依赖关系排成 DAG、并行执行、在专家之间传递产出，几分钟交付一份完整方案。**你来用 agency-agents 的专家，AO 让「用专家」这件事零门槛。**",
-              en: "Agency Orchestrator (`ao`) is **the orchestrator for the agency-agents expert library**.\n\nagency-agents ships 276 finely-tuned AI experts — marketing, engineering, design, product, finance, legal, sales, academic… each a carefully crafted system prompt that makes a model reliably act as that domain expert. But one expert only handles one step; real tasks need **several experts working together**: a researcher scopes it, an analyst breaks it down, a writer drafts it, a finalizer reviews.\n\nAO is the layer that teams them up: describe your need in one sentence or a YAML file, and AO picks the right experts, arranges them into a DAG by dependency, runs them in parallel, passes outputs between them, and delivers a full plan in minutes. **You come to use agency-agents' experts; AO makes using them effortless.**",
+              zh: "momogsm 是 momo 旗下的多智能体工作流平台，命令行入口是 `ao`。\n\n它内置一个专家库：276 位打磨好的 AI 专家——营销、工程、设计、产品、财务、法律、销售、学术……每一位都是一段精调过的系统提示词，让模型稳定地以该领域专家的身份输出。但单独一位专家只能解决一个环节；真实任务往往要**多位专家分工协作**：研究员先调研、分析师再拆解、撰稿人成文、收口角色把关。\n\nmomogsm 就是把这些专家组队起来的那一层：你用一句话或一份 YAML 描述需求，momogsm 自动选出合适的专家、按依赖关系排成 DAG、并行执行、在专家之间传递产出，几分钟交付一份完整方案。面向工业、商业、贸易企业的「工商贸赋能」就建在这一层之上。",
+              en: "momogsm is a multi-agent workflow platform from momo; its command-line entry is `ao`.\n\nIt ships a built-in expert library: 276 finely-tuned AI experts — marketing, engineering, design, product, finance, legal, sales, academic… each a carefully crafted system prompt that makes a model reliably act as that domain expert. But one expert only handles one step; real tasks need **several experts working together**: a researcher scopes it, an analyst breaks it down, a writer drafts it, a finalizer reviews.\n\nmomogsm is the layer that teams them up: describe your need in one sentence or a YAML file, and momogsm picks the right experts, arranges them into a DAG by dependency, runs them in parallel, passes outputs between them, and delivers a full plan in minutes. Industry enablement for industrial, commercial and trading companies is built on top of this layer.",
             },
           },
           {
             heading: { zh: "解决什么问题", en: "What problems it solves" },
             body: {
-              zh: "- **让 agency-agents 的专家真正协作起来**：单个专家只解决一个环节，AO 让多位专家按 DAG 分工、并行、交接\n- 单次 prompt 难以覆盖复杂任务，多专家分工 + 收口质量更高\n- 不想写编排代码：用 YAML 声明依赖，引擎自动并行；或一句话 `compose` 自动选专家、生成并运行\n- 276 位专家覆盖营销、工程、设计、产品、财务、法律、销售、学术等领域\n- 37 个 provider（云端 API + 编码 CLI + 本地模型），其中 12 个免 API key",
-              en: "- **Make agency-agents' experts actually collaborate**: one expert handles one step; AO has many experts divide work, run in parallel, and hand off via a DAG\n- A single prompt struggles with complex tasks; multi-expert division + a finalizer yields higher quality\n- No orchestration code: declare dependencies in YAML, or `compose` from one sentence to auto-pick experts, generate and run\n- 276 experts across marketing, engineering, design, product, finance, legal, sales, academic, and more\n- 37 providers (cloud APIs + coding CLIs + local models), 12 of which need no API key",
+              zh: "- **让专家真正协作起来**：单个专家只解决一个环节，momogsm 让多位专家按 DAG 分工、并行、交接\n- 单次 prompt 难以覆盖复杂任务，多专家分工 + 收口质量更高\n- 不想写编排代码：用 YAML 声明依赖，引擎自动并行；或一句话 `compose` 自动选专家、生成并运行\n- 276 位专家覆盖营销、工程、设计、产品、财务、法律、销售、学术等领域\n- 37 个 provider（云端 API + 编码 CLI + 本地模型），其中 12 个免 API key",
+              en: "- **Make the experts actually collaborate**: one expert handles one step; momogsm has many experts divide work, run in parallel, and hand off via a DAG\n- A single prompt struggles with complex tasks; multi-expert division + a finalizer yields higher quality\n- No orchestration code: declare dependencies in YAML, or `compose` from one sentence to auto-pick experts, generate and run\n- 276 experts across marketing, engineering, design, product, finance, legal, sales, academic, and more\n- 37 providers (cloud APIs + coding CLIs + local models), 12 of which need no API key",
             },
           },
           {
             heading: { zh: "怎么用（本地运行）", en: "How to use it (runs locally)" },
             body: {
-              zh: "AO 在**你自己机器上**运行。三种入口：\n1. **网页 Studio（推荐，最友好）**：本地跑 `ao web`，浏览器里选专家/模板、点击运行、实时介入——图形界面，不用碰命令行。\n2. **一句话 compose**：`ao compose \"你的需求\" --run`，自动选专家、生成并运行。\n3. **手写 YAML（进阶）**：自定义角色/任务/依赖/循环，完全可控、可版本管理。\n\n> 注意：本站是**公开演示**——`Studio` 标签在线上没有后端、不能真跑、也不要在上面填 key。要真用请按上面任一方式**本地运行**。三种入口同一引擎，产物都落 `ao-output/`，都支持断点续跑与返工。",
-              en: "AO runs **on your own machine**. Three entry points:\n1. **Web Studio (recommended, friendliest)**: run `ao web` locally and pick experts/templates, click run, and intervene live — a GUI, no command line needed.\n2. **One-sentence compose**: `ao compose \"your need\" --run` — auto-picks experts, generates and runs.\n3. **Hand-written YAML (advanced)**: define roles/tasks/dependencies/loops yourself — fully controllable and versionable.\n\n> Note: this site is a **public demo** — the Studio tab here has no backend, can't run for real, and you should never enter a key on it. To actually use AO, **run locally** via any option above. All three share one engine, save to `ao-output/`, and support resume & rework.",
+              zh: "momogsm 在**你自己机器上**运行。三种入口：\n1. **网页 Studio（推荐，最友好）**：本地跑 `ao web`，浏览器里选专家/模板、点击运行、实时介入——图形界面，不用碰命令行。\n2. **一句话 compose**：`ao compose \"你的需求\" --run`，自动选专家、生成并运行。\n3. **手写 YAML（进阶）**：自定义角色/任务/依赖/循环，完全可控、可版本管理。\n\n> 注意：本站是**公开演示**——`Studio` 标签在线上没有后端、不能真跑、也不要在上面填 key。要真用请按上面任一方式**本地运行**。三种入口同一引擎，产物都落 `ao-output/`，都支持断点续跑与返工。",
+              en: "momogsm runs **on your own machine**. Three entry points:\n1. **Web Studio (recommended, friendliest)**: run `ao web` locally and pick experts/templates, click run, and intervene live — a GUI, no command line needed.\n2. **One-sentence compose**: `ao compose \"your need\" --run` — auto-picks experts, generates and runs.\n3. **Hand-written YAML (advanced)**: define roles/tasks/dependencies/loops yourself — fully controllable and versionable.\n\n> Note: this site is a **public demo** — the Studio tab here has no backend, can't run for real, and you should never enter a key on it. To actually use momogsm, **run locally** via any option above. All three share one engine, save to `ao-output/`, and support resume & rework.",
             },
           },
         ],
@@ -60,40 +60,40 @@ export const docGroups: DocGroup[] = [
         title: { zh: "安装", en: "Install" },
         sections: [
           {
-            heading: { zh: "全局安装", en: "Global install" },
+            heading: { zh: "从源码目录安装", en: "Install from the source directory" },
             body: {
-              zh: "需要 Node.js 18+。全局安装后即可在任意目录使用 `ao` 命令：",
-              en: "Requires Node.js 18+. Install globally to use the `ao` command anywhere:",
+              zh: "需要 Node.js 18+。在 momogsm 源码目录里安装依赖并构建；`npm link` 之后即可在任意目录使用 `ao` 命令，`ao web` 启动工作台：",
+              en: "Requires Node.js 18+. Install dependencies and build inside the momogsm source directory; after `npm link` the `ao` command works anywhere, and `ao web` starts Studio:",
             },
-            code: "npm i -g agency-orchestrator\nao --version",
+            code: "npm install\nnpm run build && npm run build:studio\nnpm link            # 把 ao 命令挂到全局\nao --version\nao web              # 启动工作台",
           },
           {
             heading: { zh: "专家库随装随用，无需单独安装", en: "Experts come bundled — no separate install" },
             body: {
-              zh: "**装 AO 就自带 agency-agents 专家库**——它是 AO 的依赖（`agency-agents-zh`），`npm i -g` 时会一并装好，你不用再单独安装或克隆。`ao roles` 能列出 276 位专家，就说明专家库已就绪。需要升级时重新全局安装即可：",
-              en: "**Installing AO bundles the agency-agents library** — it's a dependency (`agency-agents-zh`) installed automatically by `npm i -g`, so you never install or clone it separately. If `ao roles` lists all 276 experts, the library is ready. To upgrade, reinstall globally:",
+              zh: "**专家库随 momogsm 一起安装**——它作为依赖在 `npm install` 时一并装好，你不用再单独安装。`ao roles` 能列出 276 位专家，就说明专家库已就绪：",
+              en: "**The expert library is installed together with momogsm** — it is a dependency pulled in by `npm install`, so there is nothing to install separately. If `ao roles` lists all 276 experts, the library is ready:",
             },
-            code: "ao roles            # 验证专家库（应列出 276 位专家）\nnpm i -g agency-orchestrator@latest   # 升级",
+            code: "ao roles            # 验证专家库（应列出 276 位专家）",
           },
           {
             heading: { zh: "无需 API Key 起步", en: "Start without an API key" },
             body: {
-              zh: "不想配 key 也能跑：AO 支持 claude-code CLI、**Antigravity CLI**（Google 的 Gemini CLI 继任者，`agy`）、Ollama 本地模型等 7 种免 key 方式。装好对应 CLI 或本地模型后，用 `--provider` 指定即可。",
-              en: "No key needed to start: AO supports 7 key-free paths such as the claude-code CLI, **Antigravity CLI** (Google's successor to the Gemini CLI, `agy`), and local Ollama. Install the CLI or local model, then point to it with `--provider`.",
+              zh: "不想配 key 也能跑：momogsm 支持 claude-code CLI、**Antigravity CLI**（Google 的 Gemini CLI 继任者，`agy`）、Ollama 本地模型等 7 种免 key 方式。装好对应 CLI 或本地模型后，用 `--provider` 指定即可。",
+              en: "No key needed to start: momogsm supports 7 key-free paths such as the claude-code CLI, **Antigravity CLI** (Google's successor to the Gemini CLI, `agy`), and local Ollama. Install the CLI or local model, then point to it with `--provider`.",
             },
           },
           {
-            heading: { zh: "不想用命令行？下载桌面客户端", en: "Prefer no terminal? Download the desktop app" },
+            heading: { zh: "不想用命令行？用图形界面", en: "Prefer no terminal? Use the graphical interface" },
             body: {
-              zh: "不熟悉命令行可以直接下载**桌面客户端**（原生 App，免装 Node）：[**前往下载 →**](https://github.com/jnMetaCode/agency-orchestrator/releases/latest)。\n\n- **macOS Apple Silicon**：`...-arm64.dmg`\n- **macOS Intel**：`...-0.2.0.dmg`（不带 arm64 的那个）\n- **Windows**：`...Setup...exe`　**Linux**：`...AppImage`\n\n桌面端把网页 Studio 包成原生应用，体验和 `ao web` 一致，key 同样只存本机。**它自带引擎和 Node，双击即用，无需再 `npm i -g agency-orchestrator`**——只有想在终端用 `ao` 命令或接进脚本 / CI 时才需要装 CLI。\n\n> 不想装桌面版、嫌签名提示麻烦？**用网页版也行**：本地运行 `ao web`（功能和桌面版完全一样，key 只存本机），或直接打开 [ao.aiolaola.com](https://ao.aiolaola.com) 演示体验。三者任选其一。\n\n下载后想校验完整性（可选）：每个 Release 附带 `SHA256SUMS-<平台>.txt`，运行 `shasum -a 256 <下载的文件>` 对照即可。\n\n#### macOS 打开时提示「已损坏，无法打开」？\n\n这不是真的损坏——当前是**未签名版**，系统给从网上下载的 App 打了「隔离」标记。三步解决：\n\n1. 先把 App 拖进**「应用程序」**，再推出磁盘映像（dmg）。\n2. 打开**「终端」**，粘贴回车（会让你输开机密码，输入时不显示是正常的）：\n   ```bash\n   sudo xattr -rd com.apple.quarantine \"/Applications/Agency Orchestrator.app\"\n   ```\n3. 回「应用程序」双击打开即可。\n\n> Windows 若弹「Windows 已保护你的电脑」，点**「更多信息」→「仍要运行」**。\n> 这些都是未签名 App 的正常提示，待项目做了 Apple 公证 / Windows 签名后会自动消失。",
-              en: "Not comfortable with the command line? Just download the **desktop app** (native, no Node needed): [**Download →**](https://github.com/jnMetaCode/agency-orchestrator/releases/latest).\n\n- **macOS Apple Silicon**: `...-arm64.dmg`\n- **macOS Intel**: `...-0.2.0.dmg` (the one without arm64)\n- **Windows**: `...Setup...exe`　**Linux**: `...AppImage`\n\nThe desktop app wraps the web Studio natively; same experience as `ao web`, and your key still stays on your machine. **It bundles the engine and Node — just double-click, no `npm i -g agency-orchestrator` needed.** You only need the CLI if you want the `ao` command in a terminal or in scripts / CI.\n\n> Don't want to install, or tired of the signing prompts? **Use the web version instead**: run `ao web` locally (same features as the desktop app, key stays on your machine), or just open [ao.aiolaola.com](https://ao.aiolaola.com) to try it. Pick whichever you like.\n\nOptional integrity check: each Release ships `SHA256SUMS-<platform>.txt`; run `shasum -a 256 <downloaded file>` and compare.\n\n#### macOS says \"Agency Orchestrator is damaged and can't be opened\"?\n\nIt's not actually damaged — the build is **unsigned**, so macOS flags internet-downloaded apps with a quarantine attribute. Three steps to fix:\n\n1. Drag the app into **Applications** first, then eject the disk image (dmg).\n2. Open **Terminal**, paste and press Enter (it'll ask for your login password; no characters showing as you type is normal):\n   ```bash\n   sudo xattr -rd com.apple.quarantine \"/Applications/Agency Orchestrator.app\"\n   ```\n3. Go back to Applications and double-click to open.\n\n> On Windows, if you see \"Windows protected your PC\", click **More info → Run anyway**.\n> These are normal prompts for unsigned apps and will disappear once the project is Apple-notarized / Windows-signed.",
+              zh: "日常使用不需要记命令：在装好 momogsm 的机器上运行一次 `ao web`，浏览器里打开的就是完整的图形界面——工作台、工商贸赋能、专家库、创意库都在里面，密钥只存本机。\n\n目前 momogsm 没有单独的桌面安装包，也没有公开的下载页；需要给同事使用时，在一台内网机器上启动 `ao web` 并设置访问令牌（`AO_WEB_TOKEN`），其他人用浏览器访问即可。",
+              en: "Daily use needs no commands: run `ao web` once on a machine where momogsm is installed, and the browser opens the full graphical interface — Studio, Industry enablement, the expert library and the creative library — with keys stored only on that machine.\n\nmomogsm currently has no separate desktop installer and no public download page. To share it with colleagues, start `ao web` on an intranet machine with an access token (`AO_WEB_TOKEN`) and let others open it in a browser.",
             },
           },
           {
             heading: { zh: "文件放在哪、怎么改", en: "Where files live, and how to move them" },
             body: {
-              zh: "文件都在你自己机器上，位置可以改（issue #44）：\n\n| 放什么 | 默认在哪 | 怎么改 |\n|---|---|---|\n| 运行产物 `ao-output/` | 命令行：当前目录；桌面端：应用数据目录 | `AO_OUTPUT_DIR=<目录>`，或用 `AO_HOME` 一次性搬走全部 |\n| 生成的工作流 | 同上 | `AO_WORKFLOWS_DIR=<目录>` |\n| Studio 存的密钥 / 自定义供应商 | 桌面端：应用数据目录；`ao web`：安装目录下 `.local/` | `AO_DATA_DIR=<目录>` |\n| 角色库 | 随包自带（中英各一份） | `AO_AGENTS_DIR=<你的角色目录>` 整体替换；`~/.ao/roles/<id>.md` 叠加自建角色（工作流里写 `my/<id>`） |\n| 团队 / 提示词 / 凭证 | `~/.ao/teams`、`~/.ao/prompts`、`~/.ao/.env` | `AO_TEAMS_DIR` / `AO_PROMPTS_DIR`；凭证也可放当前目录的 `.env`（项目级优先于用户级） |\n\n**密钥只存在本机**，不经过任何服务器——桌面端、`ao web`、命令行三者读的是同一套位置，所以在界面里配好的 key，命令行想用就 `export`，或写进 `~/.ao/.env`（任何目录下都生效）。\n\n> 桌面端**自带引擎和 Node**，不用再 `npm i -g agency-orchestrator`；但选 `claude-code` / `codex-cli` 这类订阅制 CLI 作为供应商时，**要先在本机装好并登录对应的命令行工具**——AO 是调用它，不是内置它。供应商页会直接标出哪些「已装可用」、哪些「需本机装好 CLI」。",
-              en: "Everything stays on your machine, and you can move it (issue #44):\n\n| What | Default location | How to change |\n|---|---|---|\n| Run outputs `ao-output/` | CLI: current directory; desktop: app data dir | `AO_OUTPUT_DIR=<dir>`, or move everything at once with `AO_HOME` |\n| Generated workflows | same as above | `AO_WORKFLOWS_DIR=<dir>` |\n| Studio keys / custom providers | desktop: app data dir; `ao web`: `.local/` under the install dir | `AO_DATA_DIR=<dir>` |\n| Role library | bundled (zh + en) | `AO_AGENTS_DIR=<your roles dir>` replaces it; `~/.ao/roles/<id>.md` adds your own on top (reference as `my/<id>`) |\n| Teams / prompts / credentials | `~/.ao/teams`, `~/.ao/prompts`, `~/.ao/.env` | `AO_TEAMS_DIR` / `AO_PROMPTS_DIR`; credentials can also live in `./.env` (project-level wins over user-level) |\n\n**Keys never leave your machine** — desktop, `ao web` and the CLI read the same locations, so a key you set in the UI can be used from the terminal by `export`ing it, or by putting it in `~/.ao/.env` (works from any directory).\n\n> The desktop app **ships its own engine and Node** — no `npm i -g agency-orchestrator` needed. But subscription CLI providers such as `claude-code` / `codex-cli` require that CLI to be **installed and logged in on your machine**: AO calls it, it doesn't embed it. The Providers page marks which ones are ready and which need a local install.",
+              zh: "文件都在你自己机器上，位置可以改：\n\n| 放什么 | 默认在哪 | 怎么改 |\n|---|---|---|\n| 运行产物 `ao-output/` | 命令行：当前目录；桌面端：应用数据目录 | `AO_OUTPUT_DIR=<目录>`，或用 `AO_HOME` 一次性搬走全部 |\n| 生成的工作流 | 同上 | `AO_WORKFLOWS_DIR=<目录>` |\n| Studio 存的密钥 / 自定义供应商 | 桌面端：应用数据目录；`ao web`：安装目录下 `.local/` | `AO_DATA_DIR=<目录>` |\n| 角色库 | 随包自带（中英各一份） | `AO_AGENTS_DIR=<你的角色目录>` 整体替换；`~/.ao/roles/<id>.md` 叠加自建角色（工作流里写 `my/<id>`） |\n| 团队 / 提示词 / 凭证 | `~/.ao/teams`、`~/.ao/prompts`、`~/.ao/.env` | `AO_TEAMS_DIR` / `AO_PROMPTS_DIR`；凭证也可放当前目录的 `.env`（项目级优先于用户级） |\n\n**密钥只存在本机**，不经过任何服务器——桌面端、`ao web`、命令行三者读的是同一套位置，所以在界面里配好的 key，命令行想用就 `export`，或写进 `~/.ao/.env`（任何目录下都生效）。\n\n> 通过 `ao web` 打开的图形界面用的就是本机这套引擎；但选 `claude-code` / `codex-cli` 这类订阅制 CLI 作为供应商时，**要先在本机装好并登录对应的命令行工具**——momogsm 是调用它，不是内置它。供应商页会直接标出哪些「已装可用」、哪些「需本机装好 CLI」。",
+              en: "Everything stays on your machine, and you can move it:\n\n| What | Default location | How to change |\n|---|---|---|\n| Run outputs `ao-output/` | CLI: current directory; desktop: app data dir | `AO_OUTPUT_DIR=<dir>`, or move everything at once with `AO_HOME` |\n| Generated workflows | same as above | `AO_WORKFLOWS_DIR=<dir>` |\n| Studio keys / custom providers | desktop: app data dir; `ao web`: `.local/` under the install dir | `AO_DATA_DIR=<dir>` |\n| Role library | bundled (zh + en) | `AO_AGENTS_DIR=<your roles dir>` replaces it; `~/.ao/roles/<id>.md` adds your own on top (reference as `my/<id>`) |\n| Teams / prompts / credentials | `~/.ao/teams`, `~/.ao/prompts`, `~/.ao/.env` | `AO_TEAMS_DIR` / `AO_PROMPTS_DIR`; credentials can also live in `./.env` (project-level wins over user-level) |\n\n**Keys never leave your machine** — desktop, `ao web` and the CLI read the same locations, so a key you set in the UI can be used from the terminal by `export`ing it, or by putting it in `~/.ao/.env` (works from any directory).\n\n> The graphical interface opened by `ao web` runs on this same local engine. But subscription CLI providers such as `claude-code` / `codex-cli` require that CLI to be **installed and logged in on your machine**: momogsm calls it, it doesn't embed it. The Providers page marks which ones are ready and which need a local install.",
             },
           },
         ],
@@ -105,16 +105,16 @@ export const docGroups: DocGroup[] = [
           {
             heading: { zh: "compose --run", en: "compose --run" },
             body: {
-              zh: "最快上手方式：一句话描述需求，AO 自动选角、设计 DAG、生成并**直接运行**工作流。",
-              en: "The fastest start: describe your need; AO picks experts, designs the DAG, generates and **runs** the workflow.",
+              zh: "最快上手方式：一句话描述需求，momogsm 自动选角、设计 DAG、生成并**直接运行**工作流。",
+              en: "The fastest start: describe your need; momogsm picks experts, designs the DAG, generates and **runs** the workflow.",
             },
             code: 'ao compose "我是程序员，想用 AI 做自媒体副业，目标月入 2 万，帮我做完整规划" --run',
           },
           {
             heading: { zh: "先生成、后运行", en: "Generate first, run later" },
             body: {
-              zh: "去掉 `--run` 时，AO 只**生成 YAML 工作流并保存**，不立即执行。你可以先打开生成的 YAML 检查 / 微调专家与任务，确认无误后再 `ao run` 跑：",
-              en: "Without `--run`, AO only **generates and saves the YAML workflow** without executing. Open it to review / tweak the experts and tasks, then run it with `ao run`:",
+              zh: "去掉 `--run` 时，momogsm 只**生成 YAML 工作流并保存**，不立即执行。你可以先打开生成的 YAML 检查 / 微调专家与任务，确认无误后再 `ao run` 跑：",
+              en: "Without `--run`, momogsm only **generates and saves the YAML workflow** without executing. Open it to review / tweak the experts and tasks, then run it with `ao run`:",
             },
             code: 'ao compose "为新品做一套发布物料"\n# 检查生成的 yaml 后\nao run <生成的工作流.yaml>',
           },
@@ -157,15 +157,15 @@ export const docGroups: DocGroup[] = [
           {
             heading: { zh: "分享报告页（ao report）", en: "Shareable report (ao report)" },
             body: {
-              zh: "跑出满意成果后，一条命令渲染成**自包含单文件 HTML**：专家分工时间线 + 每步产出 + 最终成品标记，图片已内联。发微信/邮件，对方双击即开、无需装 AO。Studio 运行详情里也有「分享页」按钮（直接下载该文件）。",
-              en: "One command renders a finished run into a **self-contained single-file HTML**: expert timeline + every step's output, images inlined. Send the file to anyone — it opens on double-click, no AO needed. The Studio run view has a Share button that downloads the same file.",
+              zh: "跑出满意成果后，一条命令渲染成**自包含单文件 HTML**：专家分工时间线 + 每步产出 + 最终成品标记，图片已内联。发微信/邮件，对方双击即开、无需装 momogsm。Studio 运行详情里也有「分享页」按钮（直接下载该文件）。",
+              en: "One command renders a finished run into a **self-contained single-file HTML**: expert timeline + every step's output, images inlined. Send the file to anyone — it opens on double-click, no momogsm needed. The Studio run view has a Share button that downloads the same file.",
             },
             code: "ao report          # 最近一次运行 → <run>/report.html\nao report <dir>    # 指定运行目录",
           },
           {
             heading: { zh: "结果推送到群（--notify）", en: "Push results to group chat (--notify)" },
             body: {
-              zh: "`--notify <webhook>` 让工作流跑完自动把结果推到群里——按域名自动适配钉钉/飞书/企业微信机器人格式，其他地址发通用 `{text}`（Slack 兼容）。配合 cron 就是「AI 团队每天定点交活」。推送失败只提示一行，绝不影响运行；也可用环境变量 `AO_NOTIFY_URL`。钉钉机器人的「自定义关键词」填 `AO` 即可。",
+              zh: "`--notify <webhook>` 让工作流跑完自动把结果推到群里——按域名自动适配钉钉/飞书/企业微信机器人格式，其他地址发通用 `{text}`（Slack 兼容）。配合 cron 就是「AI 团队每天定点交活」。推送失败只提示一行，绝不影响运行；也可用环境变量 `AO_NOTIFY_URL`。钉钉机器人的「自定义关键词」填 `momogsm` 即可。",
               en: "`--notify <webhook>` posts the result to a group chat when the run finishes — bot format auto-detected for DingTalk/Feishu/WeCom, generic `{text}` otherwise (Slack-compatible). Pair with cron for a daily pipeline. Push failures print one line and never affect the run; `AO_NOTIFY_URL` also works.",
             },
             code: "0 8 * * * ao run 每日简报.yaml --notify https://oapi.dingtalk.com/robot/send?access_token=xxx",
@@ -259,8 +259,8 @@ steps:
           {
             heading: { zh: "文生视频步骤（type: video）", en: "Video steps (type: video)" },
             body: {
-              zh: "步骤写 `type: video` 就是文生视频，**`task` 就是视频提示词**，同样不需要 role、`video.model` 必填。与图片最大的不同是**它是异步任务**：引擎建任务拿 task_id → 轮询状态 → 下载成品，一次几十秒到几分钟，且**按秒计费**——`duration` 写多少就是花多少，引擎绝不替你放大。mp4 落在 `ao-output/<run>/assets/`，输出变量是一条 markdown 链接，Studio 运行页与分享报告会渲染成播放器（报告页超过 12MB 的视频不内联，改为保留链接并说明原文件在 assets/ 下）。视频供应商是**独立的一张表**（当前两家：秘塔科技的 MiniMax-H3、APIMart 的 Sora2 / VEO3 / 可灵 / 海螺 等），聊天/图片的 provider 没有视频任务端点——用 `video.provider` 单独指定，或把 `llm.provider` 设成它。**两家的档位名不通用**（秘塔是 768P/2K，APIMart 是 720p/1080p/4k），引擎原样透传不替你换算。APIMart 一把 key 同时通聊天、出图与出片。失败与超时都会带上 task_id，可拿去服务商控制台对账。**提示词不会写**？姊妹项目 [ai-shortfilm-prompts](https://prompts.aiolaola.com) 有 21 个题材模板与在线生成器（5 段式结构、运镜库、负面提示词），选题材填几个空就能拿到完整提示词，直接贴进 `task` 即可；或者用内置模板「一句话出短片」让角色替你写。",
-              en: "A step with `type: video` generates a video: **`task` is the prompt**, no role needed, and `video.model` is required. Unlike images this is an **async task**: the engine creates a task, polls for status, then downloads the result — tens of seconds to minutes, and it is **billed per second**, so `duration` is exactly what you pay for (the engine never inflates it). The mp4 lands in `ao-output/<run>/assets/`; the output variable is a markdown link that the Studio run view and the shareable report render as a player (videos above 12MB are not inlined into the report — the link is kept with a note that the file is under assets/). Video providers live in their **own registry** (currently two: MetaSota's MiniMax-H3 and APIMart's Sora2 / VEO3 / Kling / Hailuo); chat/image providers have no video task endpoint — point at one with `video.provider`, or set `llm.provider` to it. **Their tier names are not interchangeable** (768P/2K vs 720p/1080p/4k) and the engine passes yours through verbatim rather than translating it. One APIMart key covers chat, image and video. Failures and timeouts always carry the task_id so you can reconcile it in the provider's console. **Not sure how to write the prompt?** The sister project [ai-shortfilm-prompts](https://prompts.aiolaola.com) ships 21 genre templates and an online generator (5-part structure, camera-move library, negative prompts) — pick a genre, fill a few blanks, paste the result into `task`. Or use the built-in \"一句话出短片\" workflow and let a role write it for you.",
+              zh: "步骤写 `type: video` 就是文生视频，**`task` 就是视频提示词**，同样不需要 role、`video.model` 必填。与图片最大的不同是**它是异步任务**：引擎建任务拿 task_id → 轮询状态 → 下载成品，一次几十秒到几分钟，且**按秒计费**——`duration` 写多少就是花多少，引擎绝不替你放大。mp4 落在 `ao-output/<run>/assets/`，输出变量是一条 markdown 链接，Studio 运行页与分享报告会渲染成播放器（报告页超过 12MB 的视频不内联，改为保留链接并说明原文件在 assets/ 下）。视频供应商是**独立的一张表**（当前两家：秘塔科技的 MiniMax-H3、APIMart 的 Sora2 / VEO3 / 可灵 / 海螺 等），聊天/图片的 provider 没有视频任务端点——用 `video.provider` 单独指定，或把 `llm.provider` 设成它。**两家的档位名不通用**（秘塔是 768P/2K，APIMart 是 720p/1080p/4k），引擎原样透传不替你换算。APIMart 一把 key 同时通聊天、出图与出片。失败与超时都会带上 task_id，可拿去服务商控制台对账。**提示词不会写**？站内「创意库」的视频页有题材模板，选题材填几个空就能拿到完整提示词，直接贴进 `task` 即可；或者用内置模板「一句话出短片」让角色替你写。",
+              en: "A step with `type: video` generates a video: **`task` is the prompt**, no role needed, and `video.model` is required. Unlike images this is an **async task**: the engine creates a task, polls for status, then downloads the result — tens of seconds to minutes, and it is **billed per second**, so `duration` is exactly what you pay for (the engine never inflates it). The mp4 lands in `ao-output/<run>/assets/`; the output variable is a markdown link that the Studio run view and the shareable report render as a player (videos above 12MB are not inlined into the report — the link is kept with a note that the file is under assets/). Video providers live in their **own registry** (currently two: MetaSota's MiniMax-H3 and APIMart's Sora2 / VEO3 / Kling / Hailuo); chat/image providers have no video task endpoint — point at one with `video.provider`, or set `llm.provider` to it. **Their tier names are not interchangeable** (768P/2K vs 720p/1080p/4k) and the engine passes yours through verbatim rather than translating it. One APIMart key covers chat, image and video. Failures and timeouts always carry the task_id so you can reconcile it in the provider's console. **Not sure how to write the prompt?** The video tab of the in-app Creative library has genre templates — pick a genre, fill a few blanks, paste the result into `task`. Or use the built-in \"一句话出短片\" workflow and let a role write it for you.",
             },
             code: `steps:
   - id: promo
@@ -464,48 +464,48 @@ steps:
     pages: [
       {
         slug: "roles",
-        title: { zh: "专家角色库 agency-agents", en: "Expert library: agency-agents" },
+        title: { zh: "专家角色库", en: "Expert library" },
         sections: [
           {
-            heading: { zh: "agency-agents 是什么", en: "What is agency-agents" },
+            heading: { zh: "专家库是什么", en: "What the expert library is" },
             body: {
-              zh: "agency-agents 是一套开源的 **AI 专家角色库**，收录了 276 位打磨好的专家。每一位专家是一个带 frontmatter 的 `.md` 文件，核心是一段精心调过的系统提示词——它约束模型的身份、视角、输出格式与专业边界，让模型稳定地以「市场研究员」「资深编辑」「财务分析师」「风控专家」等真实身份产出，而不是泛泛而谈的通用助手。\n\n角色按领域分门别类，覆盖营销、工程、设计、产品、财务、法律、销售、学术、项目管理、客服、测试等领域。AO 默认从 `node_modules/agency-agents-zh`（或仓库同级目录）加载这套库。",
-              en: "agency-agents is an open-source **library of AI expert roles** — 276 finely-tuned experts. Each expert is a `.md` file with frontmatter, centered on a carefully tuned system prompt that fixes the model's identity, perspective, output format, and domain boundaries — so the model reliably acts as a 'trend researcher', 'technical writer', 'financial analyst', 'narratologist', etc., instead of a generic assistant.\n\nRoles are organized by domain across marketing, engineering, design, product, finance, legal, sales, academic, project management, support, testing, and more. AO loads this library from `node_modules/agency-agents-zh` (or a sibling repo) by default.",
+              zh: "momogsm 内置一套 **AI 专家角色库**（基于开源角色库，见站内「开源许可声明」），收录了 276 位打磨好的专家。每一位专家是一个带 frontmatter 的 `.md` 文件，核心是一段精心调过的系统提示词——它约束模型的身份、视角、输出格式与专业边界，让模型稳定地以「市场研究员」「资深编辑」「财务分析师」「风控专家」等真实身份产出，而不是泛泛而谈的通用助手。\n\n角色按领域分门别类，覆盖营销、工程、设计、产品、财务、法律、销售、学术、项目管理、客服、测试等领域。momogsm 默认从随安装附带的专家库目录加载这套库。",
+              en: "momogsm ships a built-in **library of AI expert roles** (based on an open-source role library; see Open-source notices) — 276 finely-tuned experts. Each expert is a `.md` file with frontmatter, centered on a carefully tuned system prompt that fixes the model's identity, perspective, output format, and domain boundaries — so the model reliably acts as a 'trend researcher', 'technical writer', 'financial analyst', 'narratologist', etc., instead of a generic assistant.\n\nRoles are organized by domain across marketing, engineering, design, product, finance, legal, sales, academic, project management, support, testing, and more. momogsm loads this library from the bundled expert-library directory by default.",
             },
             code: "ao roles   # 列出全部 276 位专家",
           },
           {
-            heading: { zh: "AO 与 agency-agents 的关系", en: "How AO and agency-agents relate" },
+            heading: { zh: "专家库与编排的关系", en: "How the library and orchestration relate" },
             body: {
-              zh: "agency-agents 提供「专家」，AO 提供「让专家组队干活」的编排能力。绝大多数用户是冲着 agency-agents 的专家来的——AO 的价值，就是让你把这些专家一句话拉起来协作：`compose` 自动选专家、排 DAG、生成并运行工作流，几分钟拿到多专家协作的完整产出。",
-              en: "agency-agents provides the experts; AO provides the orchestration that puts them to work as a team. Most users come for agency-agents' experts — AO's value is letting you spin them up to collaborate from a single sentence: `compose` auto-picks experts, arranges the DAG, generates and runs the workflow, delivering multi-expert output in minutes.",
+              zh: "专家库提供「专家」，编排引擎提供「让专家组队干活」的能力。momogsm 的价值，就是让你把这些专家一句话拉起来协作：`compose` 自动选专家、排 DAG、生成并运行工作流，几分钟拿到多专家协作的完整产出。",
+              en: "The library provides the experts; the orchestration engine puts them to work as a team. momogsm's value is letting you spin them up to collaborate from a single sentence: `compose` auto-picks experts, arranges the DAG, generates and runs the workflow, delivering multi-expert output in minutes.",
             },
           },
           {
             heading: { zh: "找专家：ao roles 搜索", en: "Find an expert: ao roles search" },
             body: {
-              zh: "276 位专家不用一个个翻。`ao roles <关键词>`（或 `--search`）会在 **agency-agents 全库**里按 角色路径 / 名称 / 描述 搜索（不区分大小写），秒定位你要的专家：",
-              en: "No need to scroll all 276. `ao roles <keyword>` (or `--search`) searches the **entire agency-agents library** by path / name / description (case-insensitive) to find the expert you need:",
+              zh: "276 位专家不用一个个翻。`ao roles <关键词>`（或 `--search`）会在 **专家库全库**里按 角色路径 / 名称 / 描述 搜索（不区分大小写），秒定位你要的专家：",
+              en: "No need to scroll all 276. `ao roles <keyword>` (or `--search`) searches the **entire expert library** by path / name / description (case-insensitive) to find the expert you need:",
             },
             code: "ao roles seo        # 找 SEO 相关专家\nao roles 财务       # 找财务相关专家",
           },
           {
             heading: { zh: "在工作流里引用专家", en: "Reference an expert in a workflow" },
             body: {
-              zh: "在 step 里用 `category/role-name` 指定专家；或者干脆用 `ao compose` 让 AO 替你选。",
+              zh: "在 step 里用 `category/role-name` 指定专家；或者干脆用 `ao compose` 让 momogsm 替你选。",
               en: "In a step, name the expert as `category/role-name`; or just let `ao compose` pick for you.",
             },
             code: `steps:
   - id: research
-    role: "product/product-trend-researcher"   # agency-agents 里的专家
+    role: "product/product-trend-researcher"   # 专家库里的专家
     task: "调研 {{topic}} 的市场"
     output: research`,
           },
           {
             heading: { zh: "加自己的专家", en: "Add your own experts" },
             body: {
-              zh: "专家库是可扩展的。把你自己的专家写成同样格式的 `.md`（frontmatter + 系统提示词）放进一个目录，用工作流顶层 `agents_dir` 或 `--agents-dir` 指向它，AO 就会从那里加载——既能补充 agency-agents，也能完全用自己的私有专家库。",
-              en: "The library is extensible. Write your own expert as a `.md` in the same format (frontmatter + system prompt), put it in a folder, and point the workflow's top-level `agents_dir` or `--agents-dir` at it — AO loads experts from there, alongside or instead of agency-agents.",
+              zh: "专家库是可扩展的。把你自己的专家写成同样格式的 `.md`（frontmatter + 系统提示词）放进一个目录，用工作流顶层 `agents_dir` 或 `--agents-dir` 指向它，momogsm 就会从那里加载——既能补充内置专家库，也能完全用自己的私有专家库。",
+              en: "The library is extensible. Write your own expert as a `.md` in the same format (frontmatter + system prompt), put it in a folder, and point the workflow's top-level `agents_dir` or `--agents-dir` at it — momogsm loads experts from there, alongside or instead of the built-in library.",
             },
             code: "ao roles --agents-dir ./my-agents\nao run workflow.yaml --agents-dir ./my-agents",
           },
@@ -539,8 +539,8 @@ steps:
           {
             heading: { zh: "LanoX AI（赞助商）", en: "LanoX AI (sponsor)" },
             body: {
-              zh: "赞助商 **LanoX AI** 是全球模型聚合平台（GPT / Claude / Gemini / Qwen / Grok 等 500+ 款，专属链接注册送 5 美金），已作为内置 provider `lanox` 接入，key 用环境变量 `LANOX_API_KEY`。四点须知：① **base 要带 `/v1`**（`https://api.lanox.ai/v1`）——它文档里写的 Base URL 是根地址，照抄会少一段；照抄了也能跑，AO 会自动补上并提示你改，但直接填对更省事；② **不设默认模型**，必须自己指定：它的模型编码不跟通用命名（文档示例是 `gpt-5.6-sol`），且官方明确可用性以 `GET /v1/models` 实时结果为准——填 key 后在 Studio「供应商」面板点「获取模型列表」拉你这个 key 能用的全量；③ **Claude 系模型走 Anthropic 原生协议**，不在 OpenAI 兼容这条上——用 `provider: claude` 加 `base_url: https://api.lanox.ai`（**不带 `/v1`**，客户端自己会接 `/v1/messages`），Studio 的「Claude (Anthropic)」配置页有一键填充；④ 同一账号还能给 claude-code / codex 配中转（供应商面板「本地 CLI」区一键预填），**没有 Gemini 端点**，那一项不会出现。",
-              en: "Our sponsor **LanoX AI** aggregates global models (GPT / Claude / Gemini / Qwen / Grok, 500+ of them; $5 free credit when you sign up via our link), wired in as the built-in `lanox` provider with the `LANOX_API_KEY` env var. Four notes: ① **the base must include `/v1`** (`https://api.lanox.ai/v1`) — their docs list the root as the Base URL, so copying it verbatim leaves out a segment; it still works (AO detects it and retries with `/v1`, telling you to fix the setting), but getting it right up front is simpler; ② **no default model** — you must pick one: their model IDs don't follow the common naming (their example is `gpt-5.6-sol`) and availability is defined by the live `GET /v1/models` result, so save your key and click “Fetch model list” in the Studio Providers panel; ③ **Claude models speak Anthropic's native protocol**, not the OpenAI-compatible one — use `provider: claude` with `base_url: https://api.lanox.ai` (**no `/v1`**; the client appends `/v1/messages` itself), one-click fill available on the Studio “Claude (Anthropic)” page; ④ the same account can relay the claude-code / codex CLIs (one-click preset in the Providers panel) — there is **no Gemini endpoint**, so that option isn't offered.",
+              zh: "赞助商 **LanoX AI** 是全球模型聚合平台（GPT / Claude / Gemini / Qwen / Grok 等 500+ 款，专属链接注册送 5 美金），已作为内置 provider `lanox` 接入，key 用环境变量 `LANOX_API_KEY`。四点须知：① **base 要带 `/v1`**（`https://api.lanox.ai/v1`）——它文档里写的 Base URL 是根地址，照抄会少一段；照抄了也能跑，momogsm 会自动补上并提示你改，但直接填对更省事；② **不设默认模型**，必须自己指定：它的模型编码不跟通用命名（文档示例是 `gpt-5.6-sol`），且官方明确可用性以 `GET /v1/models` 实时结果为准——填 key 后在 Studio「供应商」面板点「获取模型列表」拉你这个 key 能用的全量；③ **Claude 系模型走 Anthropic 原生协议**，不在 OpenAI 兼容这条上——用 `provider: claude` 加 `base_url: https://api.lanox.ai`（**不带 `/v1`**，客户端自己会接 `/v1/messages`），Studio 的「Claude (Anthropic)」配置页有一键填充；④ 同一账号还能给 claude-code / codex 配中转（供应商面板「本地 CLI」区一键预填），**没有 Gemini 端点**，那一项不会出现。",
+              en: "Our sponsor **LanoX AI** aggregates global models (GPT / Claude / Gemini / Qwen / Grok, 500+ of them; $5 free credit when you sign up via our link), wired in as the built-in `lanox` provider with the `LANOX_API_KEY` env var. Four notes: ① **the base must include `/v1`** (`https://api.lanox.ai/v1`) — their docs list the root as the Base URL, so copying it verbatim leaves out a segment; it still works (momogsm detects it and retries with `/v1`, telling you to fix the setting), but getting it right up front is simpler; ② **no default model** — you must pick one: their model IDs don't follow the common naming (their example is `gpt-5.6-sol`) and availability is defined by the live `GET /v1/models` result, so save your key and click “Fetch model list” in the Studio Providers panel; ③ **Claude models speak Anthropic's native protocol**, not the OpenAI-compatible one — use `provider: claude` with `base_url: https://api.lanox.ai` (**no `/v1`**; the client appends `/v1/messages` itself), one-click fill available on the Studio “Claude (Anthropic)” page; ④ the same account can relay the claude-code / codex CLIs (one-click preset in the Providers panel) — there is **no Gemini endpoint**, so that option isn't offered.",
             },
             code: `llm:
   provider: "lanox"
@@ -571,8 +571,8 @@ llm:
           {
             heading: { zh: "Key 安全：只存本机，绝不提交", en: "Key safety: local only, never commit" },
             body: {
-              zh: "你的 API key **只留在你自己机器上**：\n- `ao init --provider X --api-key ...` 写入项目下的 `.env`，并**自动把 `.env` 加进 `.gitignore`**——不会被提交。\n- 网页 Studio 里粘贴的 key 存到 `.local/web-keys.json`（已 gitignore），**不上传任何服务器**。\n- **公开演示官网没有后端，请不要在上面填 key**；要真跑请本地运行。\n\n⚠️ 一条铁律：**任何 API key 都不要提交进 git**。AO 默认已帮你 gitignore 了 `.env` 和 `.local/`，但若你手动改了配置，发版/推送前再确认一遍。",
-              en: "Your API key **stays only on your own machine**:\n- `ao init --provider X --api-key ...` writes to a project `.env` and **auto-adds `.env` to `.gitignore`** — it won't be committed.\n- Keys pasted in the web Studio are saved to `.local/web-keys.json` (gitignored) and are **never uploaded to any server**.\n- **The public demo site has no backend — never enter a key there**; run locally to actually use AO.\n\n⚠️ Golden rule: **never commit any API key**. AO gitignores `.env` and `.local/` for you by default, but if you edit configs manually, double-check before pushing.",
+              zh: "你的 API key **只留在你自己机器上**：\n- `ao init --provider X --api-key ...` 写入项目下的 `.env`，并**自动把 `.env` 加进 `.gitignore`**——不会被提交。\n- 网页 Studio 里粘贴的 key 存到 `.local/web-keys.json`（已 gitignore），**不上传任何服务器**。\n- **公开演示官网没有后端，请不要在上面填 key**；要真跑请本地运行。\n\n⚠️ 一条铁律：**任何 API key 都不要提交进 git**。momogsm 默认已帮你 gitignore 了 `.env` 和 `.local/`，但若你手动改了配置，发版/推送前再确认一遍。",
+              en: "Your API key **stays only on your own machine**:\n- `ao init --provider X --api-key ...` writes to a project `.env` and **auto-adds `.env` to `.gitignore`** — it won't be committed.\n- Keys pasted in the web Studio are saved to `.local/web-keys.json` (gitignored) and are **never uploaded to any server**.\n- **The public demo site has no backend — never enter a key there**; run locally to actually use momogsm.\n\n⚠️ Golden rule: **never commit any API key**. momogsm gitignores `.env` and `.local/` for you by default, but if you edit configs manually, double-check before pushing.",
             },
           },
         ],

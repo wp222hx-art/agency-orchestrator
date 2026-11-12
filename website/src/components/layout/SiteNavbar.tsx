@@ -1,8 +1,6 @@
-import { ChevronDown, Github, Languages, Menu, Star, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { SITE } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -11,26 +9,23 @@ type NavChild = { to: string; label: string; external?: boolean };
 type NavItem = { id?: string; to?: string; label: string; external?: boolean; children?: NavChild[] };
 
 export function SiteNavbar() {
-  const { t, lang, toggle, prefix } = useLanguage();
+  const { t, prefix } = useLanguage();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
 
-  // 顶层 7 项(≤8):文档/教程/更新日志/影视提示词 收进「帮助」下拉。顶层唯一的外链留给
-  // 「AO 学院」(aiolaola.com,课程与变现路径);影视提示词已同步进创意库视频 tab(底部也挂了姊妹站链接),
-  // 顶层再放一个是重复入口——2026-08-25 与用户拍板对调。
+  // 顶层只放站内入口：文档 / 教程 / 更新日志 / 开源许可声明 收进「帮助」下拉。不挂任何外站链接。
   const links: NavItem[] = [
     { to: prefix("/studio"), label: t.nav.studio },
     { to: prefix("/experts"), label: t.nav.experts },
+    { to: prefix("/enterprise"), label: t.nav.enterprise },
     { to: prefix("/creative"), label: t.nav.creative },
     { to: prefix("/prompt"), label: t.nav.prompt },
-    { to: "https://aiolaola.com/", label: t.nav.learn, external: true },
     { id: "help", label: t.nav.help, children: [
       { to: prefix("/docs"), label: t.nav.docs },
       { to: prefix("/tutorials"), label: t.nav.tutorials },
       { to: prefix("/changelog"), label: t.nav.changelog },
-      { to: "https://prompts.aiolaola.com/", label: t.nav.filmPrompts, external: true },
+      { to: prefix("/licenses"), label: t.nav.licenses },
     ] },
-    { to: prefix("/sponsors"), label: t.nav.sponsors },
   ];
 
   const linkCls = "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
@@ -39,8 +34,8 @@ export function SiteNavbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <nav className="container-page flex h-16 items-center justify-between">
         <Link to={prefix("/")} className="flex items-center gap-2.5 font-bold" onClick={() => setOpen(false)}>
-          <img src="/logo/ao-app-icon.svg" alt="AO" className="h-8 w-8 drop-shadow-[0_4px_10px_rgba(99,102,241,0.35)]" />
-          <span className="hidden text-[15px] sm:block">Agency Orchestrator</span>
+          <img src={SITE.logo} alt="" className="h-8 w-8 drop-shadow-[0_4px_10px_rgba(99,102,241,0.35)]" />
+          <span className="text-[15px]">{SITE.name}</span>
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">
@@ -84,28 +79,8 @@ export function SiteNavbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={toggle}
-            className="hidden h-9 items-center gap-1.5 rounded-lg border border-border/70 px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
-          >
-            <Languages className="size-4" />
-            {lang === "zh" ? "EN" : "中"}
-          </button>
-          <ThemeToggle />
-          <Button asChild size="sm" variant="outline" className="hidden lg:inline-flex">
-            <a href={SITE.repo} target="_blank" rel="noreferrer">
-              <Star className="size-4" />
-              {t.nav.star}
-            </a>
-          </Button>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <a href={SITE.repo} target="_blank" rel="noreferrer">
-              <Github className="size-4" />
-              GitHub
-            </a>
-          </Button>
+        {/* 右侧原有的语言 / 主题 / Star / GitHub 已移除：语言跟随浏览器（或 ?lang=zh|en），主题跟随系统 */}
+        <div className="flex items-center md:hidden">
           <button
             type="button"
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 md:hidden"
@@ -150,25 +125,6 @@ export function SiteNavbar() {
                 </a>
               ),
             )}
-            <button
-              type="button"
-              onClick={() => {
-                toggle();
-                setOpen(false);
-              }}
-              className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground hover:bg-muted"
-            >
-              {t.meta.switchTo}
-            </button>
-            <a
-              href={SITE.repo}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-1 inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground"
-            >
-              <Github className="size-4" />
-              GitHub
-            </a>
           </div>
         </div>
       )}

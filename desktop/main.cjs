@@ -1,4 +1,4 @@
-// Agency Orchestrator — Electron desktop shell.
+// momogsm — Electron desktop shell.
 // Launches the existing Node backend (web/server.js) using Electron's bundled
 // Node (ELECTRON_RUN_AS_NODE), then opens a native window onto the local UI.
 // No system Node install required.
@@ -276,10 +276,9 @@ async function waitHealth(timeoutMs = 40000) {
   return false;
 }
 
-// ── 更新检查：启动后静默查 GitHub 最新 desktop-v* release，有新版弹一次提示 ──
+// ── 更新检查（已关闭，见 checkForUpdate）──
 // 不做静默自动更新（需要签名/更新服务器），只提示 + 一键跳转下载页——旧版本没有
 // 任何更新入口，用户根本不知道有新版。AO_DESKTOP_NO_UPDATE_CHECK=1 可关闭。
-const RELEASES_API = "https://api.github.com/repos/jnMetaCode/agency-orchestrator/releases?per_page=30";
 function semverNewer(a, b) {
   // a > b ? 比较 "0.2.7" 风格；解析失败按不更新处理
   const pa = String(a).split(".").map((n) => parseInt(n, 10));
@@ -292,40 +291,10 @@ function semverNewer(a, b) {
   return false;
 }
 let updateChecked = false; // 每次进程只查一次——关窗再开（复用引擎路径）不重复弹
-async function checkForUpdate(win) {
-  if (process.env.AO_DESKTOP_NO_UPDATE_CHECK === "1" || updateChecked) return;
+async function checkForUpdate(_win) {
+  // 已关闭：原实现查询的是上游开源项目的发布页，会把用户引去下载另一个软件。
+  // momogsm 有自己的发布渠道之前，这里不联网、不提示。
   updateChecked = true;
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 6000);
-    const r = await fetch(RELEASES_API, {
-      signal: ctrl.signal,
-      headers: { "user-agent": "agency-orchestrator-desktop", accept: "application/vnd.github+json" },
-    });
-    clearTimeout(timer);
-    if (!r.ok) return;
-    const releases = await r.json();
-    const latest = (Array.isArray(releases) ? releases : []).find(
-      (rel) => rel && !rel.draft && !rel.prerelease && /^desktop-v\d/.test(rel.tag_name || ""),
-    );
-    if (!latest) return;
-    const latestVer = latest.tag_name.replace(/^desktop-v/, "");
-    if (!semverNewer(latestVer, app.getVersion())) return;
-    if (win.isDestroyed()) return;
-    const { response } = await dialog.showMessageBox(win, {
-      type: "info",
-      title: "Agency Orchestrator",
-      message: `发现新版本 v${latestVer}（当前 v${app.getVersion()}）`,
-      detail: latest.name && latest.name !== latest.tag_name ? latest.name : "包含最新功能与修复，建议更新。",
-      buttons: ["前往下载", "本次忽略"],
-      defaultId: 0,
-      cancelId: 1,
-      noLink: true,
-    });
-    if (response === 0 && isSafeExternalUrl(latest.html_url)) shell.openExternal(latest.html_url);
-  } catch {
-    /* 离线/被墙/接口限流 → 静默跳过，绝不打扰启动 */
-  }
 }
 
 // 启动引擎并把窗口指向 Studio；失败时给出可重试的原生对话框，而不是静默白屏。
@@ -371,7 +340,7 @@ async function boot(win) {
   for (;;) {
     const { response } = await dialog.showMessageBox(win, {
       type: "error",
-      title: "Agency Orchestrator",
+      title: "momogsm",
       message: crashed ? "本地引擎启动后异常退出" : "本地引擎启动超时",
       detail,
       buttons: ["重试", "打开日志", "退出"],
@@ -399,7 +368,7 @@ function createWindow() {
     height: 880,
     minWidth: 960,
     minHeight: 600,
-    title: "Agency Orchestrator",
+    title: "momogsm",
     backgroundColor: "#0b0e14",
     autoHideMenuBar: true,
     webPreferences: {
@@ -474,7 +443,7 @@ if (!gotLock) {
       const status = desktopStorageStatus();
       if (!status.canChange) return { ok: false, error: "AO_DATA_DIR is set by the environment" };
       const picked = await dialog.showOpenDialog(mainWindow, {
-        title: en ? "Choose Agency Orchestrator data directory" : "选择 Agency Orchestrator 数据目录",
+        title: en ? "Choose momogsm data directory" : "选择 momogsm 数据目录",
         defaultPath: status.activeDir,
         properties: ["openDirectory", "createDirectory"],
       });

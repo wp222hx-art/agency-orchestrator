@@ -87,39 +87,11 @@ export function detectUpgradeCommand(
   return `npm i -g ${pkgSpec}`;
 }
 
-function printHint(current: string, latest: string): void {
-  const msg = [
-    '',
-    `  ╭──────────────────────────────────────────────────────────╮`,
-    `  │  新版本可用 / Update available: ${current} → ${latest.padEnd(16)}│`,
-    `  │  升级 / Run: npm i -g agency-orchestrator@latest         │`,
-    `  ╰──────────────────────────────────────────────────────────╯`,
-    '',
-  ];
-  console.error(msg.join('\n'));
-}
-
 /**
- * 启动时调用：立即返回。
- * - 有缓存且最新版更高 → 立刻打印提示
- * - 缓存过期或缺失 → 后台异步拉取新版本存缓存（本次不提示）
+ * 启动时的更新提醒：已关闭。
+ * 原实现查询的是上游开源包在公共包仓库里的版本，提示语会让用户去安装那个包——
+ * 那不是 momogsm 的发布渠道。momogsm 有自己的发布渠道之前，这里不联网、不提示。
  */
-export function scheduleUpdateCheck(currentVersion: string): void {
-  if (process.env.AO_NO_UPDATE_CHECK || process.env.CI) return;
-  if (!process.stderr.isTTY) return;
-
-  const cache = readCache();
-  const fresh = cache && Date.now() - cache.checkedAt < CACHE_TTL_MS;
-
-  if (cache?.latest && isNewer(cache.latest, currentVersion)) {
-    printHint(currentVersion, cache.latest);
-  }
-
-  if (fresh) return;
-
-  // 后台异步拉取：不阻塞 CLI，失败静默
-  (async () => {
-    const latest = await fetchLatestVersion(3000);
-    if (latest) writeCache({ checkedAt: Date.now(), latest });
-  })().catch(() => { /* silent */ });
+export function scheduleUpdateCheck(_currentVersion: string): void {
+  /* intentionally disabled */
 }
