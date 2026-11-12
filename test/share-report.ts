@@ -38,8 +38,8 @@ assert(html.includes('趋势研究员') && html.includes('执行规划师'), '�
 assert(html.includes('⭐ 最终成品'), '末步标记为最终成品');
 assert(html.includes('<table>') && html.includes('AI 教育'), 'markdown 表格被渲染');
 assert(html.includes('6,493 tokens') || html.includes('6,493'), '总 token 汇总展示');
-assert(html.includes('github.com/jnMetaCode/agency-orchestrator'), '署名页脚带仓库链接');
-assert(html.includes('npm i -g agency-orchestrator'), '署名页脚带安装命令');
+assert(html.includes('<strong>momogsm</strong>'), '署名页脚带 momogsm 品牌');
+assert(!/github\.com|npm i -g/.test(html.slice(html.lastIndexOf('<footer>'))), '署名页脚不挂外部仓库链接与安装命令');
 assert(html.includes('prefers-color-scheme'), '带暗色适配');
 
 // ── --compare 的存档单独一节，不混进步骤 ──

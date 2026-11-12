@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * agency-orchestrator web UI backend
+ * momogsm web UI backend（引擎基于开源项目修改，见 THIRD_PARTY_NOTICES.md）
  * - Lists workflows/*.yaml
  * - Spawns `ao run` and streams output via SSE
  * - Browse ao-output/ history and resume from any step
@@ -53,6 +53,7 @@ import { registerSkillDraftRoutes } from './skill-drafts.js';
 import { registerResourceCatalogRoutes, readResourceCatalog } from './resource-catalog.js';
 import { resolveSkillsDirs } from '../dist/skills/loader.js';
 import { createTargetPreviews, TargetPreviewError, claudeTargetSummary } from './config-operation-preview.js';
+import { registerEnterpriseMatchRoutes, isBrainPinnedWorkflow, readBrainConfig } from './enterprise-match.js';
 
 // Codex 没有环境变量覆盖机制，中转配置写在 ~/.codex/config.toml + auth.json 里，
 // 用固定的内部 provider id（不管用户填的是哪家中转商），避免还要在 UI 里加个
@@ -292,17 +293,19 @@ function readKeys() {
 }
 
 // ── 远程供应商清单（赞助商上/下架不发版）─────────────────────────────────────
-// 清单托管在官网(website/public/providers-manifest.json → ao.aiolaola.com),改官网仓
+// 远程清单默认关闭：momogsm 没有自己的清单托管地址，不去拉取任何外部站点。
+// 需要时用 AO_MANIFEST_URL 指向自己托管的清单(格式见 website/public/providers-manifest.json),改清单
 // push 即生效。这里启动时拉取+6h 缓存;拉不到静默回退为空(内置供应商不受影响)。
 // 远程 provider 走"自定义供应商"同一运行通道(base_url/key 直传),引擎零改动。
 // 安全约束:只接受 https 的 baseUrl,id 不能覆盖内置 provider(防清单被篡改后劫持内置流量)。
-const MANIFEST_URL = process.env.AO_MANIFEST_URL || 'https://ao.aiolaola.com/providers-manifest.json';
+const MANIFEST_URL = process.env.AO_MANIFEST_URL || '';
 const MANIFEST_TTL = 6 * 60 * 60 * 1000;
 const EMPTY_MANIFEST = { providers: [], relayPresets: [], removedProviders: [], providerOverrides: {}, sponsorRotation: [], communityTemplates: [] };
 let manifestCache = { data: null, fetchedAt: 0 };
 async function getRemoteManifest() {
   const now = Date.now();
   if (manifestCache.data && now - manifestCache.fetchedAt < MANIFEST_TTL) return manifestCache.data;
+  if (!MANIFEST_URL) return EMPTY_MANIFEST;   // 没配清单地址：不发任何外部请求
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 3000);
@@ -695,7 +698,7 @@ app.post('/api/community/import', async (req, res) => {
     }
     const def = yaml.load(text);
     if (!def || typeof def !== 'object' || !def.name || !Array.isArray(def.steps)) {
-      return res.status(400).json({ error: '不是有效的 AO 工作流 YAML（缺 name/steps）' });
+      return res.status(400).json({ error: '不是有效的工作流 YAML（缺 name/steps）' });
     }
     const { validateWorkflow } = await import('../dist/core/parser.js');
     const errors = validateWorkflow(def);
@@ -961,7 +964,20 @@ app.post('/api/run', (req, res) => {
   const args = [CLI, 'run', resolvedFile];
   let childApiKey = '';
   let childLlmEnv = {};
-  if (provider) {
+  // 企业赋能匹配生成的工作流整条钉在 momo智脑上（yaml 里不存 key）：运行时从 momo智脑凭据取 key，
+  // 只经子进程环境变量传给引擎。这类工作流忽略顶栏选的 provider——否则「专家全部用 momo智脑模型」
+  // 会被一次下拉选择悄悄改掉，且换了家之后 yaml 里的模型编码也对不上。
+  const brainPinned = isBrainPinnedWorkflow(resolvedFile);
+  if (brainPinned) {
+    const brainKey = readBrainConfig().apiKey;
+    // 没凭据就在这里说清楚：放下去的话引擎会退回 OPENAI_API_KEY（可能是别家的 key）去请求 momo智脑
+    if (!brainKey) {
+      return res.status(400).json({ code: 'brain_not_configured',
+        error: '这条工作流固定使用 momo智脑模型，但没有检测到 momo智脑模型凭据（请设置 AO_MOMO_BRAIN_API_KEY 后重启引擎）' });
+    }
+    childApiKey = brainKey;
+    if (provider) console.log('[run] momo智脑工作流：忽略 provider 覆盖', provider);
+  } else if (provider) {
     args.push('--provider', provider);
     // A bare --provider override clears the YAML model/base → supply them so
     // keyed providers (deepseek/openai), ollama and custom endpoints all work.
@@ -1076,11 +1092,14 @@ app.post('/api/run', (req, res) => {
 
   console.log('[run]', runId, basename(resolvedFile));
   let child;
+  // AO_WEB_INPUT=1 → 引擎遇到 human_input/approval 会发机器标记而非在终端等输入
+  // AO_NO_AT_FILE=1 → 关闭 -i k=@file 文件展开，防止网页请求读取本机任意文件（如 API key）
+  const childEnv = { ...process.env, FORCE_COLOR: '0', AO_WEB_INPUT: '1', AO_WEB_INPUT_JSON: '1', AO_NO_AT_FILE: '1', ...childLlmEnv, ...(childApiKey ? { AO_API_KEY: childApiKey } : {}) };
+  // 引擎把 AO_PROVIDER / AO_MODEL 当成 --provider / --model：momo智脑工作流不能被它们改道（key 也不该跟着去别家）
+  if (brainPinned) { delete childEnv.AO_PROVIDER; delete childEnv.AO_MODEL; }
   try { child = spawn(NODE_BIN, args, {
     cwd: DATA_DIR,
-    // AO_WEB_INPUT=1 → 引擎遇到 human_input/approval 会发机器标记而非在终端等输入
-    // AO_NO_AT_FILE=1 → 关闭 -i k=@file 文件展开，防止网页请求读取本机任意文件（如 API key）
-    env: { ...process.env, FORCE_COLOR: '0', AO_WEB_INPUT: '1', AO_WEB_INPUT_JSON: '1', AO_NO_AT_FILE: '1', ...childLlmEnv, ...(childApiKey ? { AO_API_KEY: childApiKey } : {}) },
+    env: childEnv,
   });
   } catch {
     persistFinish({ error: true });
@@ -1338,6 +1357,25 @@ function loadRoles(lang) {
 
 const rolesCache = {};
 const roleLibraryInstalls = new Map();
+
+// 企业 AI 赋能 · 专家匹配：企业名称 + 行业分类 → momo智脑检索与分析 → 从所选角色库匹配专家 →
+// 生成「诊断 / 设计 / 宣传 / 服务」工作流。实现与取舍见 web/enterprise-match.js。
+registerEnterpriseMatchRoutes(app, {
+  getRoles: (lang) => {
+    const lib = normalizeRoleLang(lang);
+    if (!rolesCache[lib]) rolesCache[lib] = loadRoles(lib);
+    return rolesCache[lib];
+  },
+  normalizeRoleLang,
+  agentsDirFor,
+  listRoleLibs: () => installedRoleLibs().filter((l) => l.installed).map(({ id, label }) => ({ id, label })),
+  workflowsDir: COMPOSED_DIR,
+  // 用户自己维护的工商贸行业体系（行业、识别词、知识基线）；和 key 一样放在数据目录的 .local/ 下
+  taxonomyFile: join(DATA_DIR, '.local', 'enterprise-taxonomy.json'),
+  // 智能体后台（启停、迭代要求）与数字孪生推演，同样是用户数据
+  agentsFile: join(DATA_DIR, '.local', 'enterprise-agents.json'),
+  twinsFile: join(DATA_DIR, '.local', 'enterprise-twins.json'),
+});
 
 app.post('/api/roles/libraries/:id/install', async (req, res) => {
   const id = String(req.params.id || '');
@@ -2239,7 +2277,7 @@ app.post('/api/config', (req, res) => {
       }
       const { backups } = applyCodexRelay({
         providerId: CODEX_RELAY_ID,
-        name: 'AO Relay',
+        name: 'momogsm Relay',
         baseUrl: baseUrl.trim(),
         apiKey: apiKey.trim(),
         model: typeof model === 'string' && model.trim() ? model.trim() : undefined,
@@ -2254,7 +2292,7 @@ app.post('/api/config', (req, res) => {
   // process.env"（因为压根没写过）。
   const isCustom = readCustomProviders(CUSTOM_PROVIDERS_FILE).some((p) => p.id === provider) || !!remoteProviderSpec(provider);
   const isKeyed = !!KEY_ENV[provider] || isCustom;
-  if (!provider || (!isKeyed && provider !== 'ollama')) return res.status(400).json({ error: `unknown provider: ${provider || '(空)'}（引擎不认识该供应商——若刚更新过 AO 或重新构建，请重启引擎后重试）` });
+  if (!provider || (!isKeyed && provider !== 'ollama')) return res.status(400).json({ error: `unknown provider: ${provider || '(空)'}（引擎不认识该供应商——若刚更新过 momogsm 或重新构建，请重启引擎后重试）` });
   const hasAdvancedUpdate = maxTokens !== undefined || reasoningEffort !== undefined || thinkingMode !== undefined;
   if (hasAdvancedUpdate && !supportsAdvancedModelParams(provider)) {
     return res.status(400).json({ error: '该供应商不是 OpenAI-compatible 文本端点，不支持这组高级模型参数' });
@@ -2649,7 +2687,7 @@ app.post('/api/test-provider', async (req, res) => {
   if (keyErr) return res.json({ ok: false, error: keyErr });
   await getRemoteManifest();
   const isCustomProvider = readCustomProviders(CUSTOM_PROVIDERS_FILE).some((p) => p.id === provider) || !!remoteProviderSpec(provider);
-  if (!provider || (!KEY_ENV[provider] && provider !== 'ollama' && !isCustomProvider)) return res.status(400).json({ ok: false, error: `unknown provider: ${provider || '(空)'}（引擎不认识该供应商——若刚更新过 AO 或重新构建，请重启引擎后重试）` });
+  if (!provider || (!KEY_ENV[provider] && provider !== 'ollama' && !isCustomProvider)) return res.status(400).json({ ok: false, error: `unknown provider: ${provider || '(空)'}（引擎不认识该供应商——若刚更新过 momogsm 或重新构建，请重启引擎后重试）` });
   // 自定义供应商没有专属 env 变量名，key 只存在 saved[provider].apiKey 里。
   const key = provider === 'ollama' ? 'n/a'
     : ((typeof overrideKey === 'string' && overrideKey.trim()) || (KEY_ENV[provider] ? process.env[KEY_ENV[provider].key] : readKeys()[provider]?.apiKey));
@@ -2870,7 +2908,7 @@ async function shengsuanyunMediaModels() {
   if (ssyCatalogCache.models.length && Date.now() - ssyCatalogCache.at < SSY_CATALOG_TTL_MS) {
     return ssyCatalogCache;
   }
-  const ua = { 'user-agent': `agency-orchestrator/${PKG_VERSION}` };
+  const ua = { 'user-agent': `momogsm/${PKG_VERSION}` };
   const getJson = async (url, ms = 15000) => {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), ms);
@@ -2935,7 +2973,7 @@ app.post('/api/provider-models', async (req, res) => {
   // 对齐 cc-switch：显式带 User-Agent。undici 默认不发 UA，部分端点的 WAF/UA 白名单会拦
   // 裸请求（cc-switch 实测 Kimi 等站点白名单只认 claude-cli/* 前缀；Anthropic 协议目标
   // 用它最稳），OpenAI 兼容目标用产品 UA（诚实标识，非伪装浏览器）。
-  headers['user-agent'] = isClaude ? 'claude-cli/2.1.161 (external, cli)' : `agency-orchestrator/${PKG_VERSION}`;
+  headers['user-agent'] = isClaude ? 'claude-cli/2.1.161 (external, cli)' : `momogsm/${PKG_VERSION}`;
   // 端点候选（对齐 cc-switch build_models_url_candidates 的顺序，避免多打一次必 404 的请求）：
   //  · base 已以版本段 /v{N} 结尾（如 /v1、智谱 /paas/v4）→ 版本号已在路径里，正确端点是 {base}/models；
   //    版本非 /v1 时再把 {base}/v1/models 作为兜底次候选。
@@ -3122,20 +3160,9 @@ const isEngineStale = () => STALE_PROBES.some((f) => {
   if (!touched) return false;                       // 没被碰过：直接过，不读文件
   return fileFingerprint(f) !== BOOT_FINGERPRINTS.get(f);
 });
-// 新版本感知：桌面端没有自动更新（mac 无签名装不了 electron-updater），装机量会
-// 永远停在装机那天的版本——至少要让界面知道"外面有新版"。6h 缓存 + 3s 超时 +
-// 失败静默（离线/内网环境不该看到任何报错），health 每 5s 被轮询，绝不能阻塞。
-let latestVersionCache = { v: null, at: 0 };
-async function getLatestVersion() {
-  const now = Date.now();
-  if (now - latestVersionCache.at < 6 * 60 * 60 * 1000) return latestVersionCache.v;
-  latestVersionCache.at = now; // 先占位：失败也 6h 内不再重试
-  try {
-    const r = await fetch('https://registry.npmjs.org/agency-orchestrator/latest', { signal: AbortSignal.timeout(3000) });
-    if (r.ok) latestVersionCache.v = (await r.json()).version ?? null;
-  } catch { /* 离线环境静默 */ }
-  return latestVersionCache.v;
-}
+// 新版本感知已关闭：原实现去公共包仓库查询上游包的最新版本，查到的不是 momogsm 的版本，
+// 会把用户引去安装另一个软件。momogsm 没有自己的发布渠道之前，这里恒为 null、不发外部请求。
+async function getLatestVersion() { return null; }
 app.get('/api/health', async (_req, res) => res.json({ ok: true, version: PKG_VERSION, stale: isEngineStale(), latest: await getLatestVersion() }));
 
 // SPA fallback: serve the React app for any non-API, non-asset route.
@@ -3148,13 +3175,11 @@ app.get(/^(?!\/api\/).*/, (req, res, next) => {
   if (!existsSync(indexHtml)) {
     res.status(503).type('html').send(
       `<!doctype html><meta charset="utf-8">` +
-      `<title>Agency Orchestrator — 前端未就绪</title>` +
+      `<title>momogsm — 前端未就绪</title>` +
       `<div style="font-family:system-ui;max-width:640px;margin:10vh auto;padding:0 24px;line-height:1.7">` +
       `<h2>⚠️ Studio 前端产物缺失</h2>` +
       `<p>服务已启动，但找不到前端文件 <code>${indexHtml}</code>。</p>` +
-      `<p>若你是<strong>桌面端</strong>用户：这是打包产物不完整（已知问题 #81），请下载更新后的版本；` +
-      `临时可改用网页版 <code>npm i -g agency-orchestrator &amp;&amp; ao web</code>。</p>` +
-      `<p>若你是<strong>从源码运行</strong>：请先执行 <code>npm run build:studio</code> 生成前端再重启。</p>` +
+      `<p>请在 momogsm 源码目录执行 <code>npm run build:studio</code> 生成前端，再重新运行 <code>ao web</code>。</p>` +
       `</div>`
     );
     return;
@@ -3164,7 +3189,7 @@ app.get(/^(?!\/api\/).*/, (req, res, next) => {
 
 app.listen(PORT, HOST, () => {
   const ui = HAS_NEW_UI ? 'Web Studio' : 'web UI (legacy)';
-  console.log(`🌐 agency-orchestrator ${ui}: http://${HOST}:${PORT}`);
+  console.log(`🌐 momogsm ${ui}: http://${HOST}:${PORT}`);
   // 把解析到的前端路径打出来，前端缺失类问题（#81）一眼可查。
   if (!HAS_NEW_UI) console.warn(`⚠️  未找到 React 前端产物：${join(WEBSITE_DIST, 'index.html')}（将回退 legacy UI / 诊断页）`);
   // 数据落在哪儿必须让人看得见:全局安装时它不在包目录而在 ~/.ao,

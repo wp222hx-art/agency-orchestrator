@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { SITE } from "@/lib/site";
 import { api, getFavRoles, recentUsage, setFavRoles, type ComposeResult, type Role, type RunSummary, type Team, type Workflow } from "@/lib/studio";
 import { track } from "@/lib/track";
 import { demoRoles } from "@/lib/demo";
@@ -469,7 +470,7 @@ export function RolesPicker({
               {needKeyGuide.installedCli && needKeyGuide.installedCli.length > 0 && (
                 <p>① {t.studio.roles.needKeyCli}<code className="rounded bg-muted px-1">{needKeyGuide.installedCli[0]}</code>{t.studio.roles.needKeyCliAfter}</p>
               )}
-              <p>
+              {SITE.showSponsorMarks && <p>
                 ② {t.studio.roles.needKeySponsor}
                 {(needKeyGuide.sponsors ?? []).map((s, i) => (
                   <span key={s.name}>
@@ -484,8 +485,8 @@ export function RolesPicker({
                   </span>
                 ))}
                 {t.studio.roles.needKeySponsorAfter}
-              </p>
-              <p>③ {t.studio.roles.needKeyLocal}</p>
+              </p>}
+              <p>{SITE.showSponsorMarks ? "③" : "②"} {t.studio.roles.needKeyLocal}</p>
             </div>
           </div>
         )}

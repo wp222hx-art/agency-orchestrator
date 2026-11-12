@@ -18,8 +18,8 @@ import { getActiveProvider, setActiveProvider } from "@/lib/studio";
 export default function PromptStudio() {
   const { t, lang } = useLanguage();
   useSeo(
-    lang === "en" ? "Prompt Generator — AI turns your idea into an effective prompt | Agency Orchestrator"
-      : "提示生成 — AI 帮你生成更有效的提示词 | Agency Orchestrator",
+    lang === "en" ? "Prompt Generator — AI turns your idea into an effective prompt | momogsm"
+      : "提示生成 — AI 帮你生成更有效的提示词 | momogsm",
     lang === "en" ? "Generate, test and compare prompts with AI. System & user prompt generation, free to try."
       : "用 AI 生成、测试、对比提示词。系统/用户提示词生成,免费试用。",
   );

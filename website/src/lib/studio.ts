@@ -1,4 +1,5 @@
 import type { RunInputSnapshot } from "./run-input-state";
+import { webToken } from "@/lib/web-token";
 
 export interface ToolConfigurationStatus {
   id: "claude-code" | "codex-cli";
@@ -278,28 +279,6 @@ export type SseHandler = (event: string, data: any) => void;
 
 const API = "/api";
 
-/**
- * 可选的访问令牌（服务端 `AO_WEB_TOKEN`，默认没有）。首次用 `?token=xxx` 打开，这里存进 sessionStorage
- * 并把它从地址栏抹掉（免得被截图、被写进历史记录），之后本标签页的请求自动带上。
- * sessionStorage 而不是 localStorage：标签页关了就没了，共用电脑上不留。
- */
-const TOKEN_KEY = "ao.webToken";
-function readToken(): string {
-  try {
-    const url = new URL(window.location.href);
-    const fromUrl = url.searchParams.get("token");
-    if (fromUrl) {
-      sessionStorage.setItem(TOKEN_KEY, fromUrl);
-      url.searchParams.delete("token");
-      window.history.replaceState({}, "", url.toString());
-      return fromUrl;
-    }
-    return sessionStorage.getItem(TOKEN_KEY) || "";
-  } catch {
-    return "";   // 隐私模式 / 禁了 storage：当没有令牌，服务端没开这功能时一切照常
-  }
-}
-let webToken = typeof window === "undefined" ? "" : readToken();
 /** 给 fetch 用的鉴权头；没有令牌就是空对象（不发多余的头）。 */
 export function authHeaders(): Record<string, string> {
   return webToken ? { Authorization: `Bearer ${webToken}` } : {};
@@ -836,6 +815,143 @@ export function providerLogo(id: string): string | undefined {
   return `/sponsors/logo-${base}-icon.${PROVIDER_LOGO_SVG_IDS.has(base) ? "svg" : "png"}`;
 }
 
+// ── 企业 AI 赋能 · 专家匹配（后端 web/enterprise-match.js）──
+export type EnterprisePhaseId = "diagnose" | "design" | "promote" | "service";
+export type EnterpriseTeamSize = "lean" | "standard" | "full";
+export type EnterpriseSectorId = "industry" | "commerce" | "trade";
+/** 知识基线的五个维度（指标与行话 / 业务流程 / 系统与数据 / 合规与标准 / 经验与误区） */
+export type EnterpriseKnowledgeDimId = "metrics" | "process" | "systems" | "compliance" | "pitfalls";
+export type EnterpriseKnowledge = Record<EnterpriseKnowledgeDimId, string[]>;
+export interface EnterpriseKnowledgeDim { id: EnterpriseKnowledgeDimId; name: string; nameEn: string }
+export interface EnterpriseMeta {
+  /** 三大板块：工业 / 商业 / 贸易。principles 是该板块做 AI 赋能的方法与原则，会写进专家任务 */
+  sectors: { id: EnterpriseSectorId; name: string; nameEn: string; focus: string; principles: string[] }[];
+  /** pains / scenarios 是该行业的通用参考清单，不是针对某家企业的结论；knowledge 是写进专家任务的知识基线 */
+  industries: { id: string; sector: EnterpriseSectorId; name: string; nameEn: string; pains: string[]; scenarios: string[]; knowledge: EnterpriseKnowledge; builtin: boolean }[];
+  knowledgeDims: EnterpriseKnowledgeDim[];
+  /** 行业体系是否被用户改过；error 非空 = 已保存的体系读不出来，当前显示的是内置默认值 */
+  taxonomy: { customized: boolean; updatedAt: string; error: string };
+  phases: { id: EnterprisePhaseId; name: string; nameEn: string; goal: string }[];
+  teamSizes: Record<EnterpriseTeamSize, { perPhase: number; steps: number }>;
+  roleLibs: { id: string; label: string }[];
+  brain: { configured: boolean; source: string; error: string; defaultModel: string; models: string[] };
+  /** 智能体后台：error 非空 = 已保存的设置读不出来；principles 是写进每位专家任务的迭代思路条数 */
+  agents: { error: string; principles: number };
+  /** 数字孪生推演：可选的企业规模；error 非空 = 已保存的推演读不出来 */
+  twin: { scales: TwinScale[]; error: string; limits: { current: number; saved: number } };
+}
+// ── 行业体系（管理视图，后端 web/enterprise-taxonomy.js）──
+export interface TaxonomyIndustryFields {
+  sector: EnterpriseSectorId; name: string; nameEn: string;
+  /** keywords：按企业名称识别行业；boost：匹配专家时的加分词 */
+  keywords: string[]; pains: string[]; scenarios: string[]; boost: string[];
+  knowledge: EnterpriseKnowledge;
+}
+export interface TaxonomyIndustry extends TaxonomyIndustryFields { id: string; builtin: boolean; modified: boolean }
+export interface TaxonomySectorFields { fallback: string; focus: string; search: string; hints: string[]; boost: string[]; principles: string[] }
+export interface TaxonomySector extends TaxonomySectorFields { id: EnterpriseSectorId; name: string; nameEn: string; modified: boolean }
+/** [最多条数, 每条最多字数] */
+export type TaxonomyListLimit = [number, number];
+export interface EnterpriseTaxonomy {
+  version: number;
+  customized: boolean;
+  updatedAt: string;
+  error: string;
+  limits: {
+    industries: number; name: number; nameEn: number; focus: number; search: number;
+    keywords: TaxonomyListLimit; pains: TaxonomyListLimit; scenarios: TaxonomyListLimit; boost: TaxonomyListLimit;
+    knowledge: TaxonomyListLimit; hints: TaxonomyListLimit; principles: TaxonomyListLimit;
+  };
+  dims: EnterpriseKnowledgeDim[];
+  sectors: TaxonomySector[];
+  industries: TaxonomyIndustry[];
+}
+export interface EnterpriseCandidate { path: string; name: string; description: string }
+/** by：model = momo智脑选定；rule = 规则匹配；user = 用户自己增补 */
+export interface EnterpriseTeamMember { role: string; name: string; reason: string; by: "model" | "rule" | "user" }
+export interface EnterpriseAnalysis {
+  company: string;
+  roleLang: string;
+  size: EnterpriseTeamSize;
+  model: string;
+  sector: { id: EnterpriseSectorId; name: string; nameEn: string; source: "user" | "model" | "name" };
+  industry: { id: string; name: string; nameEn: string; source: "user" | "model" | "name" };
+  confidence: "high" | "medium" | "low";
+  summary: string;
+  pains: string[];
+  scenarios: string[];
+  /** true = 模型没给出针对该企业的结论，展示的是行业通用清单 */
+  generic: { pains: boolean; scenarios: boolean };
+  sources: { title: string; link: string }[];
+  searched: boolean;
+  /** true = 模型分析失败，团队由规则匹配得出 */
+  degraded: boolean;
+  degradedReason: string;
+  team: Record<EnterprisePhaseId, EnterpriseTeamMember[]>;
+  lead: { role: string; name: string } | null;
+}
+export interface EnterpriseWorkflow {
+  file: string;
+  name: string;
+  model: string;
+  stepCount: number;
+  deliverables: string[];
+  cast: { id: string; role: string; name: string; phase: string }[];
+  /** 写进每位专家任务的行业知识条数 */
+  knowledgeItems: number;
+  /** 写进每位专家任务的迭代思路条数 */
+  iterationItems: number;
+  /** 这支团队里带有管理员迭代要求的专家数 */
+  tunedAgents: number;
+}
+
+// ── 智能体后台（后端 web/enterprise-agents.js）──
+export interface AgentRevision { revision: number; at: string; notes: string[]; source: "user" | "ai" | "rollback" }
+export interface AdminAgent {
+  /** 专家库里的路径，例如 engineering/engineering-ai-engineer */
+  path: string; name: string; description: string; category: string; categoryName: string;
+  enabled: boolean;
+  /** 管理员给这位智能体的迭代要求；revision 是当前版本号，history 是最近几版 */
+  notes: string[]; revision: number; history: AgentRevision[];
+  usage: { teams: number; lastUsedAt: string };
+}
+export interface AgentAdminState {
+  principles: string[]; customPrinciples: boolean; defaultPrinciples: string[];
+  limits: { notes: TaxonomyListLimit; principles: TaxonomyListLimit; history: number; feedback: number };
+  error: string;
+  total: number; enabled: number; tuned: number;
+  agents: AdminAgent[];
+}
+
+// ── 数字孪生推演（后端 web/enterprise-twin.js）。所有数字都是模型估算，除非企业填了实测值 ──
+export type TwinMode = "manual" | "semi" | "auto";
+export type TwinScale = "small" | "medium" | "large";
+export type TwinCategory = "robot" | "inspection" | "logistics" | "processing" | "sensing" | "software" | "other";
+export interface TwinStageCurrent { id: string; name: string; mode: TwinMode; note: string; issues: string[] }
+export interface TwinStageTarget { id: string; name: string; mode: TwinMode; change: string; tech: string[] }
+export interface TwinEquipment { id: string; name: string; category: TwinCategory; stage: string; specs: string[]; replaces: string; benefit: string }
+export interface TwinMetric {
+  id: string; name: string; unit: string; better: "higher" | "lower";
+  /** current / target 是模型估算；measured 是企业自己填的实测现状值（没填为 null） */
+  current: number; target: number; basis: string; confidence: "high" | "medium" | "low"; measured: number | null;
+  /** 对比用的基线（实测优先）及其来源；improvement 是相对基线的改善幅度（%），算不出来为 null */
+  baseline: number; baselineSource: "estimate" | "measured"; improvement: number | null;
+}
+export interface EnterpriseTwin {
+  id: string; createdAt: string; model: string; company: string; scale: TwinScale;
+  sector: { id: EnterpriseSectorId; name: string; nameEn: string };
+  industry: { id: string; name: string; nameEn: string };
+  input: string; basedOn: string; summary: string;
+  current: TwinStageCurrent[]; target: TwinStageTarget[]; equipment: TwinEquipment[]; metrics: TwinMetric[];
+  roadmap: { horizon: string; items: string[] }[];
+  assumptions: string[]; risks: string[];
+}
+export interface TwinSummary {
+  id: string; createdAt: string; model: string; company: string; scale: TwinScale;
+  sector: EnterpriseTwin["sector"]; industry: EnterpriseTwin["industry"]; metrics: number; stages: number;
+}
+export interface TwinListResponse { twins: TwinSummary[]; error: string }
+
 export const api = {
   resources: () => getJSON<ResourceCatalog>("/resources"),
   resource: (id: string) => getJSON<CatalogResource>(`/resources/${encodeURIComponent(id)}`),
@@ -990,6 +1106,60 @@ export const api = {
     postJSON<{ ok: boolean; slug: string }>("/prompts", body),
   deletePrompt: (slug: string) => delJSON<{ ok: boolean }>(`/prompts/${encodeURIComponent(slug)}`),
   promptGarden: () => getJSON<{ seeds: GardenSeed[] }>("/prompt/garden").then((r) => r.seeds),
+  // ── 企业 AI 赋能 · 专家匹配 ──
+  enterpriseMeta: () => getJSON<EnterpriseMeta>("/enterprise/meta"),
+  enterpriseCredits: () => getJSON<{ balance: number | null; plan?: string }>("/enterprise/credits"),
+  enterpriseAnalyze: (body: { company: string; sector?: string; industry?: string; roleLang?: string; size?: EnterpriseTeamSize; model?: string }) =>
+    postJSON<EnterpriseAnalysis>("/enterprise/analyze", body),
+  enterpriseWorkflow: (body: {
+    company: string; industry: string; roleLang: string; model: string; lang?: string; lead?: string;
+    team: Record<string, string[]>;
+    context: { summary: string; pains: string[]; scenarios: string[] };
+  }) => postJSON<EnterpriseWorkflow>("/enterprise/workflow", body),
+  /** 某阶段可增补的专家；带 q 时在整个专家库里搜。不调用模型 */
+  enterpriseCandidates: (query: { phase: EnterprisePhaseId; industry?: string; roleLang?: string; q?: string }) => {
+    const params = new URLSearchParams({ phase: query.phase });
+    if (query.industry) params.set("industry", query.industry);
+    if (query.roleLang) params.set("roleLang", query.roleLang);
+    if (query.q) params.set("q", query.q);
+    return getJSON<{ phase: EnterprisePhaseId; candidates: EnterpriseCandidate[] }>(`/enterprise/candidates?${params}`);
+  },
+  // ── 行业体系管理：每个写操作都返回最新的完整体系 ──
+  enterpriseTaxonomy: () => getJSON<EnterpriseTaxonomy>("/enterprise/taxonomy"),
+  enterpriseTaxonomyImport: (body: unknown) => putJSON<EnterpriseTaxonomy>("/enterprise/taxonomy", body),
+  enterpriseTaxonomyReset: () => postJSON<EnterpriseTaxonomy>("/enterprise/taxonomy/reset", {}),
+  /** 让 momo智脑起草一个行业的档案：只返回草稿，不保存；调用一次模型 */
+  enterpriseTaxonomyDraft: (body: { sector: EnterpriseSectorId; name: string; model?: string }) =>
+    postJSON<{ model: string; draft: TaxonomyIndustryFields }>("/enterprise/taxonomy/draft", body),
+  enterpriseIndustryAdd: (body: TaxonomyIndustryFields) => postJSON<EnterpriseTaxonomy>("/enterprise/taxonomy/industries", body),
+  enterpriseIndustryUpdate: (id: string, body: Partial<TaxonomyIndustryFields>) =>
+    putJSON<EnterpriseTaxonomy>(`/enterprise/taxonomy/industries/${encodeURIComponent(id)}`, body),
+  enterpriseIndustryDelete: (id: string) => delJSON<EnterpriseTaxonomy>(`/enterprise/taxonomy/industries/${encodeURIComponent(id)}`),
+  enterpriseIndustryReset: (id: string) => postJSON<EnterpriseTaxonomy>(`/enterprise/taxonomy/industries/${encodeURIComponent(id)}/reset`, {}),
+  enterpriseSectorUpdate: (id: EnterpriseSectorId, body: Partial<TaxonomySectorFields>) =>
+    putJSON<EnterpriseTaxonomy>(`/enterprise/taxonomy/sectors/${id}`, body),
+  // ── 智能体后台：每个写操作都返回最新的完整列表 ──
+  enterpriseAgents: (roleLang: string) => getJSON<AgentAdminState>(`/enterprise/agents?roleLang=${encodeURIComponent(roleLang)}`),
+  enterpriseAgentUpdate: (body: { role: string; roleLang: string; enabled?: boolean; notes?: string[]; source?: "user" | "ai" }) =>
+    putJSON<AgentAdminState>("/enterprise/agents/item", body),
+  enterpriseAgentRollback: (body: { role: string; roleLang: string; revision: number }) =>
+    postJSON<AgentAdminState>("/enterprise/agents/rollback", body),
+  /** 让 momo智脑按反馈起草一版迭代要求：只返回草稿，不保存；调用一次模型 */
+  enterpriseAgentSuggest: (body: { role: string; roleLang: string; feedback: string; model?: string }) =>
+    postJSON<{ model: string; notes: string[]; why: string }>("/enterprise/agents/suggest", body),
+  /** principles 传 null = 恢复默认的迭代思路 */
+  enterpriseAgentPrinciples: (body: { principles: string[] | null; roleLang: string }) =>
+    putJSON<AgentAdminState>("/enterprise/agents/principles", body),
+  // ── 数字孪生推演 ──
+  enterpriseTwins: () => getJSON<TwinListResponse>("/enterprise/twins"),
+  enterpriseTwin: (id: string) => getJSON<EnterpriseTwin>(`/enterprise/twins/${encodeURIComponent(id)}`),
+  /** 生成一份推演（调用一次模型）。basedOn = 在某一份的基础上迭代，沿用它的行业 / 规模 / 现状与实测值 */
+  enterpriseTwinGenerate: (body: { industry?: string; company?: string; scale?: TwinScale; current?: string; model?: string; basedOn?: string }) =>
+    postJSON<EnterpriseTwin>("/enterprise/twins", body),
+  /** 填入 / 清除实测现状值：{ 指标 id: 数字 | null } */
+  enterpriseTwinMeasured: (id: string, values: Record<string, number | null>) =>
+    putJSON<EnterpriseTwin>(`/enterprise/twins/${encodeURIComponent(id)}/measured`, { values }),
+  enterpriseTwinDelete: (id: string) => delJSON<TwinListResponse>(`/enterprise/twins/${encodeURIComponent(id)}`),
 };
 
 /** Parse a Server-Sent-Events stream coming from a POST response body. */
@@ -1200,7 +1370,7 @@ export const API_PROVIDERS: ApiProviderMeta[] = [
   // 主打图片/视频生成的低价供给；接它的理由是 /v1/images/generations 能直接供
   // `type: image` 步骤与创意库「一键出图」用（同一个 key 也通聊天模型）。
   // 不给 modelSuggestions：零余额账户 GET /v1/models 也回 402，模型编码尚未核实（见引擎侧说明）。
-  { id: "apimart", name: "APIMart", hint: "api.apimart.ai · 图片/视频低价 API · 配好 key 点「获取模型列表」", defaultBaseUrl: "https://api.apimart.ai/v1", signupUrl: "https://go.apimart.ai/gh-agency-orchestrator", sponsor: true },
+  { id: "apimart", name: "APIMart", hint: "api.apimart.ai · 图片/视频低价 API · 配好 key 点「获取模型列表」", defaultBaseUrl: "https://api.apimart.ai/v1", signupUrl: "https://apimart.ai", sponsor: true },
   // 赞助商 秘塔科技（2026-08-23 接入）—— **视频专用供应商**，给 `type: video` 步骤用：
   // MiniMax-H3 文生视频，768P 0.09 元/秒、2K 0.15 元/秒。端点是 MiniMax 官方 API 换了 Host，
   // 建任务/查状态两条路径已用真 key 实探核实（见引擎 VIDEO_PROVIDERS 的说明）。

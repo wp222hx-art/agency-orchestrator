@@ -106,7 +106,7 @@ export function ensureEnvGitignored(cwd: string = process.cwd()): boolean {
   const content = readFileSync(gitignorePath, 'utf-8');
   const hasEnv = content.split(/\r?\n/).some(l => l.trim() === '.env');
   if (hasEnv) return false;
-  const appended = content + (content.endsWith('\n') ? '' : '\n') + '\n# agency-orchestrator local config\n.env\n';
+  const appended = content + (content.endsWith('\n') ? '' : '\n') + '\n# momogsm local config\n.env\n';
   writeFileSync(gitignorePath, appended, 'utf-8');
   return true;
 }

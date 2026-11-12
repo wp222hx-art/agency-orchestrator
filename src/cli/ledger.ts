@@ -19,7 +19,7 @@ import yaml from 'js-yaml';
 import { defaultOutputDir } from '../utils/paths.js';
 
 export const LEDGER_REASONS = {
-  unsupported: 'AO 不支持',
+  unsupported: 'momogsm 不支持',
   quality: '质量不够',
   judgment: '需要人判断',
   external: '对外操作',

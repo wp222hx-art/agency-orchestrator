@@ -110,7 +110,7 @@ async function toPptx(md: string, opts?: { name?: string }): Promise<ExportResul
   const title = opts?.name || '工作流报告';
   const cover = pptx.addSlide();
   cover.addText(title, { x: 0.8, y: 2.6, w: 11.7, h: 1.4, fontSize: 40, bold: true, color: '1D2530' });
-  cover.addText('由 Agency Orchestrator 多专家协作生成', { x: 0.8, y: 4.1, w: 11.7, h: 0.6, fontSize: 16, color: '5D6B7E' });
+  cover.addText('由 momogsm 多专家协作生成', { x: 0.8, y: 4.1, w: 11.7, h: 0.6, fontSize: 16, color: '5D6B7E' });
   for (const s of mdToSlides(md, title)) {
     const slide = pptx.addSlide();
     slide.addText(s.title, { x: 0.7, y: 0.4, w: 12, h: 0.9, fontSize: 26, bold: true, color: '1D2530' });
@@ -201,7 +201,7 @@ export function skillSlug(name: string | undefined): string {
 
 /**
  * description 是模型**决定要不要加载这个技能**时唯一看得见的东西。原来一律写
- * "由 Agency Orchestrator 多智能体协作生成的方法论 / 计划"——每个导出的技能都长一样，
+ * "由 momogsm 多智能体协作生成的方法论 / 计划"——每个导出的技能都长一样，
  * 模型没法据此判断何时该用，等于白导。改成"工作流名 —— 正文第一句"。
  */
 export function skillDescription(md: string, name?: string): string {
@@ -212,7 +212,7 @@ export function skillDescription(md: string, name?: string): string {
   const gist = (firstLine || '').replace(/[*_`]/g, '').slice(0, 100);
   const title = (name || '').trim();
   if (title && gist) return `${title} —— ${gist}`;
-  return title || gist || '由 Agency Orchestrator 多智能体协作生成的方法论 / 计划';
+  return title || gist || '由 momogsm 多智能体协作生成的方法论 / 计划';
 }
 
 /** 把报告包成可复用 Skill(.md + frontmatter)或可执行计划(交 Claude Code 跑)。 */
@@ -220,13 +220,13 @@ function toSkillOrPlan(md: string, format: 'skill' | 'plan', opts?: { name?: str
   const name = format === 'skill'
     ? skillSlug(opts?.name)
     : (opts?.name || 'generated-plan').replace(/[^一-鿿a-zA-Z0-9_-]/g, '-').replace(/-+/g, '-').toLowerCase();
-  const desc = opts?.description || (format === 'skill' ? skillDescription(md, opts?.name) : '由 Agency Orchestrator 多智能体协作生成的方法论 / 计划');
+  const desc = opts?.description || (format === 'skill' ? skillDescription(md, opts?.name) : '由 momogsm 多智能体协作生成的方法论 / 计划');
   let content: string;
   if (format === 'skill') {
     content = `---\nname: ${name}\ndescription: ${desc}\n---\n\n${md}\n`;
   } else {
     // 可执行计划:给 Claude Code 等编码 agent 的执行说明(把"看的报告"变成"做的指令")
-    content = `# 执行计划(由 Agency Orchestrator 生成)\n\n> 你是编码执行 agent。请**严格按下面的计划自动执行直到完成**,对不明确处用合理默认值,不要反问。完成后自检是否满足计划目标。\n\n---\n\n${md}\n`;
+    content = `# 执行计划(由 momogsm 生成)\n\n> 你是编码执行 agent。请**严格按下面的计划自动执行直到完成**,对不明确处用合理默认值,不要反问。完成后自检是否满足计划目标。\n\n---\n\n${md}\n`;
   }
   return { buffer: Buffer.from(content, 'utf-8'), ext: 'md', mime: 'text/markdown', engine: 'wrap' };
 }

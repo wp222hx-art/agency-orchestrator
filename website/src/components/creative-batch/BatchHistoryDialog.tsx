@@ -50,8 +50,8 @@ export function BatchHistoryDialog({ onClose, onOpenRun }: { onClose: () => void
           <p className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />{en ? "Loading…" : "正在加载…"}</p>
         ) : error ? (
           <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
-            <p className="flex items-start gap-2"><AlertCircle className="mt-0.5 size-4 shrink-0" />{en ? "Could not connect to the task history. Open Generation history in the desktop app or local Studio to see tasks saved there." : "暂时无法连接任务记录。请在桌面 App 或本地工作台打开“生成记录”，查看在那里保存的任务。"}</p>
-            <a href="https://github.com/jnMetaCode/agency-orchestrator/releases/latest" target="_blank" rel="noreferrer" className="mt-3 inline-flex text-primary hover:underline">{en ? "Download desktop app" : "下载桌面版"}</a>
+            <p className="flex items-start gap-2"><AlertCircle className="mt-0.5 size-4 shrink-0" />{en ? "Could not connect to the task history. Open Generation history in your local Studio to see tasks saved there." : "暂时无法连接任务记录。请在本地工作台打开“生成记录”，查看在那里保存的任务。"}</p>
+            <a href="/docs/install" className="mt-3 inline-flex text-primary hover:underline">{en ? "How to run locally" : "查看本机部署方法"}</a>
           </div>
         ) : runs.length === 0 ? (
           <p className="mt-8 text-center text-sm text-muted-foreground">{en ? "No batch tasks yet" : "还没有批量任务"}</p>

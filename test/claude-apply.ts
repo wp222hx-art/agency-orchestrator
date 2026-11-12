@@ -427,7 +427,7 @@ try {
     const busy: string[] = [];
     for (const run of [() => applyClaudeProvider(cfg), () => restoreClaudeToOfficial({ shellEnv: {}, detectSystemProxy: false }),
       () => repairClaudeConfig({ shellEnv: {} })]) {
-      try { run(); busy.push('ran'); } catch (e) { busy.push(/另一个 AO/.test(String(e)) ? 'busy' : String(e)); }
+      try { run(); busy.push('ran'); } catch (e) { busy.push(/另一个 momogsm/.test(String(e)) ? 'busy' : String(e)); }
     }
     assert(busy.every(r => r === 'busy') && readFileSync(settings, 'utf-8') === JSON.stringify({ theme: 'dark' }),
       `另一 AO 进程持锁：apply / restore / repair 都拒绝且不写（${busy.join(',')}）`);

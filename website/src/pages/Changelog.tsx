@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowUpRight, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { Badge } from "@/components/ui/badge";
 import { Markdown } from "@/components/studio/Markdown";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { SITE } from "@/lib/site";
 import { changelog, changelogAnchor } from "@/lib/changelog";
 
 export default function Changelog() {
@@ -13,7 +12,7 @@ export default function Changelog() {
   const c = t.changelog;
   const { hash } = useLocation();
 
-  // 支持 /changelog#v0.6.17 直接定位到某个版本
+  // 支持 /changelog#v2026-11-12 直接定位到某一条
   useEffect(() => {
     if (!hash) return;
     const el = document.getElementById(hash.slice(1));
@@ -39,7 +38,7 @@ export default function Changelog() {
                   <div className="flex flex-wrap items-center gap-3">
                     <a href={`#${anchor}`} className="inline-flex items-center gap-1.5 text-xl font-bold hover:text-primary">
                       <Tag className="size-4 text-primary" />
-                      {/^\d/.test(entry.version) ? `v${entry.version}` : entry.version}
+                      {/^\d+\.\d/.test(entry.version) ? `v${entry.version}` : entry.version}
                     </a>
                     {i === 0 && (
                       <Badge className="border-primary/30 bg-primary/10 text-primary">{c.latest}</Badge>
@@ -52,15 +51,6 @@ export default function Changelog() {
             })}
           </div>
 
-          <a
-            href={SITE.changelog}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-12 inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-sm font-medium hover:border-primary/40"
-          >
-            {c.repoLink}
-            <ArrowUpRight className="size-4 text-primary" />
-          </a>
         </div>
       </main>
       <SiteFooter />

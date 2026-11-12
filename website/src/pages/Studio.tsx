@@ -64,7 +64,7 @@ function resolveTab(qp: string | null): { tab: Tab; start?: StartView; settings?
 
 function StudioInner() {
   const { t, lang, prefix } = useLanguage();
-  const { status, version, stale, latest, updateAvailable, blocked } = useBackend();
+  const { status, version, stale, blocked } = useBackend();
   // 防御：任一 tab 文案缺失也不要让整个 Studio 渲染崩溃（否则所有 tab 都点不动）
   const TABS = TAB_META.map((tb) => ({
     ...tb,
@@ -199,7 +199,7 @@ function StudioInner() {
         <div className="sticky top-16 z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl">
           <div className="container-page flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
             <span className="flex items-center gap-2 font-bold">
-              <img src="/logo/ao-app-icon.svg" alt="AO" className="size-7" />
+              <img src="/logo/momogsm-icon.svg" alt="" className="size-7" />
               {t.nav.studio}
             </span>
 
@@ -248,15 +248,6 @@ function StudioInner() {
                 <span className={cn("size-1.5 rounded-full", status === "online" && !stale ? "bg-emerald-500" : status === "checking" ? "bg-muted-foreground" : "bg-amber-500")} />
                 <span className="hidden lg:inline">{status === "online" ? (stale ? t.studio.shell.statusStale : t.studio.shell.statusOnline) : status === "offline" ? t.studio.shell.statusOffline : t.studio.shell.statusChecking}</span>
               </span>
-              {updateAvailable && (
-                <button
-                  title={t.studio.shell.updateAvailableTitle}
-                  onClick={() => window.open("https://github.com/jnMetaCode/agency-orchestrator/releases/latest", "_blank")}
-                  className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/25"
-                >
-                  ↑ <span className="hidden lg:inline">{t.studio.shell.updateAvailable} </span>v{latest}
-                </button>
-              )}
               {tab !== "tools" && tab !== "resources" && <>
                 <ProviderSelect value={provider} onChange={setProvider} onOpenProviders={() => setTab("providers")} />
                 <ModelSelect provider={provider} />

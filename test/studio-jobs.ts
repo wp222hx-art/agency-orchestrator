@@ -12,6 +12,7 @@ const helpers = await import(pathToFileURL(resolve('web/run-jobs.js')).href);
 const parser = await import(pathToFileURL(resolve('web/run-output-parser.js')).href);
 const input = await import(pathToFileURL(resolve('web/run-input.js')).href);
 const streams = await import(pathToFileURL(resolve('web/run-stream.js')).href);
+const enterprise = await import(pathToFileURL(resolve('web/enterprise-match.js')).href);
 const source = readFileSync('web/server.js', 'utf-8');
 const start = source.indexOf("app.post('/api/run',");
 const end = source.indexOf('// ── 多智能体 vs', start);
@@ -37,12 +38,13 @@ class Child extends EventEmitter {
   exitCode: number | null = null; signalCode: string | null = null;
   kill(signal: string) { this.killed = true; this.emit('close', null, signal); return true; }
 }
-function fixture() {
+function fixture(options: { workflow?: string; env?: Record<string, string>; brainKey?: string } = {}) {
   const dir = join(root, String(sequence++)); mkdirSync(dir);
-  const file = join(dir, 'workflow.yaml'); writeFileSync(file, 'name: example');
+  const file = join(dir, 'workflow.yaml'); writeFileSync(file, options.workflow ?? 'name: example');
   const store = new FileJobStore(join(dir, 'jobs'));
   const registry = new helpers.RunJobRegistry(store);
   const children: Child[] = [], logs: string[] = [];
+  const spawned: { args: string[]; env: Record<string, string> }[] = [];
   const activeRuns = new Map();
   let failSpawn = false, key = 'fake-key';
   const handlers = new Map<string, any>();
@@ -55,14 +57,21 @@ function fixture() {
     DATA_DIR: dir, OUTPUT_DIR: dir, CLI: '/cli.js', NODE_BIN: process.execPath,
     cleanLLMConfig: () => ({ model: 'test-model', api_key: key, params: { thinking: 'off' } }),
     runJobs: registry, activeRuns, jobHttpError: helpers.jobHttpError, randomUUID: () => crypto.randomUUID(),
-    createRunOutputParser: parser.createRunOutputParser, process: { env: {} },
+    createRunOutputParser: parser.createRunOutputParser, process: { env: options.env ?? {} },
+    // momo智脑-pinned workflows: real detection, fake credentials (never reads this machine's ~/.genspark_llm.yaml)
+    isBrainPinnedWorkflow: enterprise.isBrainPinnedWorkflow,
+    readBrainConfig: () => ({ apiKey: options.brainKey ?? 'fake-brain-key' }),
     console: { log: (...args: unknown[]) => logs.push(args.join(' ')), error: (...args: unknown[]) => logs.push(args.join(' ')) },
-    spawn: () => { if (failSpawn) throw new Error('spawn failed'); const child = new Child(); children.push(child); return child; },
+    spawn: (_bin: string, args: string[], spawnOptions: { env: Record<string, string> }) => {
+      if (failSpawn) throw new Error('spawn failed');
+      spawned.push({ args, env: spawnOptions.env });
+      const child = new Child(); children.push(child); return child;
+    },
   };
   runInNewContext(route, context);
   const run = (body: object = {}) => { const res = new Response(); handlers.get('POST /api/run')({ body: { file, ...body } }, res); return res; };
   const call = (route: string, body: object = {}) => { const res = new Response(); handlers.get(route)({ body, params: body }, res); return res; };
-  return { file, dir, store, registry, children, logs, activeRuns, run, call, runStreams,
+  return { file, dir, store, registry, children, logs, activeRuns, run, call, runStreams, spawned,
     failSpawn: () => { failSpawn = true; }, rotateKey: () => { key = 'rotated-fake-key'; } };
 }
 function startEvent(res: Response) {
@@ -180,6 +189,25 @@ try {
     for (const secret of ['fake-key', 'private-prompt', 'private-feedback']) {
       assert(!json.includes(secret)); assert(!f.logs.join('').includes(secret));
     }
+  });
+  await test('momo智脑-pinned workflow keeps its provider: override ignored, key only in child env, AO_PROVIDER/AO_MODEL stripped', () => {
+    const pinned = 'name: pinned\nllm:\n  provider: genspark\n  base_url: https://www.genspark.ai/api/llm_proxy/v1\n  model: m\nsteps:\n  - id: a\n    role: r/x\n    task: t\n';
+    const f = fixture({ workflow: pinned, env: { AO_PROVIDER: 'deepseek', AO_MODEL: 'other-model', KEEP: '1' } });
+    const res = f.run({ provider: 'test' }), started = startEvent(res);
+    const { args, env } = f.spawned[0];
+    assert(!args.includes('--provider') && !args.includes('--model') && !args.includes('--base-url'));
+    assert.equal(env.AO_API_KEY, 'fake-brain-key');
+    assert.equal(env.AO_PROVIDER, undefined); assert.equal(env.AO_MODEL, undefined); assert.equal(env.KEEP, '1');
+    const json = readdirSync(join(f.dir, 'jobs')).filter(name => name.endsWith('.json')).map(name => readFileSync(join(f.dir, 'jobs', name), 'utf-8')).join('');
+    for (const text of [JSON.stringify(started), res.chunks.join(''), args.join(' '), f.logs.join(' '), json]) assert(!text.includes('fake-brain-key'));
+    // No momo智脑 credentials: refuse before spawning (the engine would otherwise fall back to an unrelated OPENAI_API_KEY)
+    const none = fixture({ workflow: pinned, brainKey: '' }), refused = none.run();
+    assert.equal(refused.statusCode, 400); assert.equal(refused.payload.code, 'brain_not_configured');
+    assert.equal(none.children.length, 0); assert.equal(none.store.list().length, 0);
+    // Ordinary workflows are untouched: the provider override and its key still apply, env is passed through
+    const plain = fixture({ env: { AO_PROVIDER: 'x' } }); plain.run({ provider: 'test' });
+    assert(plain.spawned[0].args.includes('--provider')); assert.equal(plain.spawned[0].env.AO_API_KEY, 'fake-key');
+    assert.equal(plain.spawned[0].env.AO_PROVIDER, 'x');
   });
   await test('sync spawn failure is persisted; async spawn error cleans active map once', () => {
     const sync = fixture(); sync.failSpawn();

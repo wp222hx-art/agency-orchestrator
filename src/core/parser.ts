@@ -218,7 +218,7 @@ export function parseWorkflow(
         `step "${step.id}" 是 video 步骤，必须写 video: { model: "<视频模型>" }\n` +
         `        当前内置视频供应商：metaso（秘塔科技）→ model 填 MiniMax-H3\n` +
         `        各家视频模型编码互不通用，引擎不猜——猜错就是等几分钟收到"模型不存在"\n` +
-        `        不知道提示词怎么写？21 个题材模板与在线生成器：https://prompts.aiolaola.com/build.html`
+        `        不知道提示词怎么写？工作台「创意库」的视频页有题材模板可直接套用`
       );
     }
     if (isImageNode && step.assert) {

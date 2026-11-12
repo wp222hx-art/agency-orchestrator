@@ -27,7 +27,7 @@ const EXCERPT_LIMIT = 300;
 export function buildNotifyText(s: NotifySummary): string {
   const mark = s.success ? '✅' : '⚠️';
   const lines = [
-    `${mark} AO 工作流「${s.name}」${s.success ? '完成' : '部分完成'}（${s.completedSteps}/${s.totalSteps} 步 · ${s.duration}）`,
+    `${mark} momogsm 工作流「${s.name}」${s.success ? '完成' : '部分完成'}（${s.completedSteps}/${s.totalSteps} 步 · ${s.duration}）`,
   ];
   if (s.excerpt) {
     const ex = s.excerpt.length > EXCERPT_LIMIT ? s.excerpt.slice(0, EXCERPT_LIMIT) + '…' : s.excerpt;
@@ -42,7 +42,7 @@ export function buildNotifyText(s: NotifySummary): string {
 /**
  * 按 webhook 域名适配消息体。
  * - 钉钉自定义机器人（oapi.dingtalk.com）：{msgtype:'text', text:{content}}
- *   注意钉钉机器人常配"自定义关键词"安全设置——文案固定含 "AO"，把它设为关键词即可。
+ *   注意钉钉机器人常配"自定义关键词"安全设置——文案固定含 "momogsm"，把它设为关键词即可。
  * - 飞书自定义机器人（open.feishu.cn / open.larksuite.com）：{msg_type:'text', content:{text}}
  * - 企业微信群机器人（qyapi.weixin.qq.com）：{msgtype:'text', text:{content}}
  * - 其他：通用 {text}（Slack incoming webhook 等也认这个形状）

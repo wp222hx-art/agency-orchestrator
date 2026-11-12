@@ -546,7 +546,7 @@ export function timeoutFailureHint(provider: string, opts?: { noContent?: boolea
   if (opts?.noContent) {
     const lines = [
       '',
-      '  💡 provider 全程未返回任何内容（0 token）——多半是输入过大或服务端卡住，不是 AO 在等。',
+      '  💡 provider 全程未返回任何内容（0 token）——多半是输入过大或服务端卡住，不是 momogsm 在等。',
       '     ⚠️ 增大超时无效（已等满仍是 0 token）。建议按顺序：',
       '     1. 换更稳的 provider/model：如本机已登录的 claude-code（零配置、扛长生成）',
       '     2. 拆分任务：把这步拆成多个更小的 step，每步输出更短',

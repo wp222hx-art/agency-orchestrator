@@ -35,9 +35,9 @@ export function modelPatchYaml(model?: string): string | null {
 
 /** Diagnostic only: the engine runtime is not necessarily the CLI's actual runtime on POSIX. */
 export function dshEmptyOutputHint(nodeVersion = process.versions.node, electron = !!process.versions.electron): string {
-  return `AO 引擎运行于 Node ${nodeVersion}${electron ? '（Electron 内置）' : ''}。`
+  return `momogsm 引擎运行于 Node ${nodeVersion}${electron ? '（Electron 内置）' : ''}。`
     + '使用 import.meta.main 入口的 dsh 需要 Node 22.x ≥ 22.18 或 Node ≥ 24.2；Node 23 和 24.0/24.1 不支持该入口。'
-    + 'Windows npm shim 可能使用 AO 的内置运行时，终端能跑不代表桌面端兼容。'
+    + 'Windows npm shim 可能使用 momogsm 的内置运行时，终端能跑不代表桌面端兼容。'
     + '请核对实际 CLI 子进程的 Node；当前可先用兼容 Node 启动终端 ao，或配置能自行启动兼容 Node 的包装器。'
     + '首次启动还可能需要初始化 headless profile；终端可运行 dsh --profile headless "说 你好" 排查。';
 }

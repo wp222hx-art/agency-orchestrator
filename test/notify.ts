@@ -12,10 +12,10 @@ const S = { name: '每日简报', success: true, duration: '182.1s', completedSt
 
 // ── 文案 ──
 const text = buildNotifyText(S);
-assert(text.includes('AO 工作流「每日简报」完成'), '成功文案含名称与状态');
+assert(text.includes('momogsm 工作流「每日简报」完成'), '成功文案含名称与状态');
 assert(text.includes('5/5 步') && text.includes('182.1s'), '含步数与耗时');
 assert(text.includes('今日要点'), '含产出节选');
-assert(text.includes('AO'), '固定含 "AO"（钉钉关键词安全设置用）');
+assert(text.includes('momogsm'), '固定含 "momogsm"（钉钉关键词安全设置用）');
 const failText = buildNotifyText({ ...S, success: false, completedSteps: 3 });
 assert(failText.includes('⚠️') && failText.includes('部分完成') && failText.includes('3/5'), '失败文案如实说部分完成');
 const longText = buildNotifyText({ ...S, excerpt: 'x'.repeat(500) });

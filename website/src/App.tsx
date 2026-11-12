@@ -5,15 +5,16 @@ import { BackToTop } from "@/components/layout/BackToTop";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageProvider";
 
 const Home = lazy(() => import("@/pages/Home"));
-const Sponsors = lazy(() => import("@/pages/Sponsors"));
 const Studio = lazy(() => import("@/pages/Studio"));
 const Experts = lazy(() => import("@/pages/Experts"));
+const EnterpriseMatch = lazy(() => import("@/pages/EnterpriseMatch"));
 const PromptStudio = lazy(() => import("@/pages/PromptStudio"));
 const CreativeLibrary = lazy(() => import("@/pages/CreativeLibrary"));
 const Docs = lazy(() => import("@/pages/Docs"));
 const Tutorials = lazy(() => import("@/pages/Tutorials"));
 const TutorialDetail = lazy(() => import("@/pages/TutorialDetail"));
 const Changelog = lazy(() => import("@/pages/Changelog"));
+const Licenses = lazy(() => import("@/pages/Licenses"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 function ScrollToTop() {
@@ -22,22 +23,6 @@ function ScrollToTop() {
     if (hash) return;
     window.scrollTo(0, 0);
   }, [pathname, hash]);
-  return null;
-}
-
-// GA4 单页应用 page_view：gtag 已设 send_page_view:false，由这里在每次路由变化（含首屏）
-// 手动补发，确保各页访问都被统计且不重复。gtag 缺失（如本地无网/被拦）时静默跳过。
-function PageViews() {
-  const { pathname, search } = useLocation();
-  useEffect(() => {
-    const gtag = (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag;
-    if (typeof gtag !== "function") return;
-    gtag("event", "page_view", {
-      page_location: window.location.href,
-      page_path: pathname + search,
-      page_title: document.title,
-    });
-  }, [pathname, search]);
   return null;
 }
 
@@ -52,7 +37,6 @@ export default function App() {
   return (
     <LanguageProvider>
       <ScrollToTop />
-      <PageViews />
       <SiteNavbar />
       <BackToTop />
       <Suspense fallback={<Fallback />}>
@@ -60,14 +44,14 @@ export default function App() {
           {["/", "/zh", "/en"].map((p) => (
             <Route key={p} path={p} element={<Home />} />
           ))}
-          {["/sponsors", "/zh/sponsors", "/en/sponsors"].map((p) => (
-            <Route key={p} path={p} element={<Sponsors />} />
-          ))}
           {["/studio", "/zh/studio", "/en/studio"].map((p) => (
             <Route key={p} path={p} element={<Studio />} />
           ))}
           {["/experts", "/zh/experts", "/en/experts"].map((p) => (
             <Route key={p} path={p} element={<Experts />} />
+          ))}
+          {["/enterprise", "/zh/enterprise", "/en/enterprise"].map((p) => (
+            <Route key={p} path={p} element={<EnterpriseMatch />} />
           ))}
           {["/creative", "/zh/creative", "/en/creative"].map((p) => (
             <Route key={p} path={p} element={<CreativeLibrary />} />
@@ -89,6 +73,9 @@ export default function App() {
           ))}
           {["/changelog", "/zh/changelog", "/en/changelog"].map((p) => (
             <Route key={p} path={p} element={<Changelog />} />
+          ))}
+          {["/licenses", "/zh/licenses", "/en/licenses"].map((p) => (
+            <Route key={p} path={p} element={<Licenses />} />
           ))}
           <Route path="*" element={<NotFound />} />
         </Routes>

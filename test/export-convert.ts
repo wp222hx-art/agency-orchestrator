@@ -112,7 +112,7 @@ console.log('\n─── skill 导出要能真装上 ───');
   const desc = text.match(/^description: (.+)$/m)?.[1] ?? '';
   assert(/^[a-z0-9-]+$/.test(name), `name 必须是 ASCII slug（实际 ${name}）`);
   assert(desc.includes('登录改造') && desc.includes('Cookie'), `description 要含工作流名与正文第一句（实际 ${desc}）`);
-  assert(!desc.startsWith('由 Agency Orchestrator'), '不再是那句所有技能都一样的套话');
+  assert(!desc.startsWith('由 momogsm'), '不再是那句所有技能都一样的套话');
   assert(text.includes('# 登录改造方案'), '人看的标题留在正文里，不丢');
 
   // 纯中文名 slug 化后为空 → 用通用 id，宁可通用也不要一个装不上的名字

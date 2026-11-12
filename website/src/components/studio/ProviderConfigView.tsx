@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDialog } from "@/components/ui/use-dialog";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { SITE, neutralLink } from "@/lib/site";
 import { api, API_PROVIDERS, CLI_RELAY_PRESETS, CUSTOM_PROVIDER_PRESETS, getFavModels, groupModelsByVendor, providerLogo, toggleFavModel, type CliRelayPreset, type ConfigResponse } from "@/lib/studio";
 import { sponsors, sponsorUrl } from "@/content/sponsors";
 import { Tip } from "@/components/ui/tip";
@@ -195,15 +196,16 @@ export function ProviderConfigView({
   // Anthropic 协议中转商（provider: claude + 中转 base_url 直连）。这些中转商不是
   // OpenAI 兼容的，进不了 API_PROVIDERS，只能挂在 Claude 这个原生 SDK provider 上。
   const anthropicRelays = providerId === "claude" ? relayPresets.filter((r) => r.anthropicApiBaseUrl) : [];
-  const registerUrl =
+  const registerUrl = neutralLink(
     target.kind === "api"
       ? anthropicRelays.find((r) => r.signupUrl && r.anthropicApiBaseUrl === baseUrl)?.signupUrl ?? target.signupUrl
     : isRelay ? relayPresets.find((r) => r.signupUrl && r.baseUrls[providerId] === baseUrl)?.signupUrl
-    : undefined;
+    : undefined,
+  );
   // 赞助商优惠信息（对齐 cc-switch 的合作伙伴提示条）：优惠文案/优惠码之前只在官网赞助商页,
   // 配 key 时看不见 —— 现在直接展示在 API Key 输入框下方。数据复用 content/sponsors.ts,
   // 不再维护第二份。优云智算的 sponsor id 是 youyun、provider id 是 compshare,单独映射。
-  const sponsorEntry = !isAdd
+  const sponsorEntry = SITE.showSponsorMarks && !isAdd
     ? sponsors.find((s) => s.id === (providerId === "compshare" ? "youyun" : providerId))
     : undefined;
 
@@ -702,7 +704,7 @@ export function ProviderConfigView({
                         )}
                       >
                         {r.name}
-                        {r.sponsor && (
+                        {SITE.showSponsorMarks && r.sponsor && (
                           <span className="rounded-full bg-muted px-1 py-px text-[9px] font-medium text-muted-foreground">
                             {p.sponsorTag}
                           </span>
@@ -736,7 +738,7 @@ export function ProviderConfigView({
                       )}
                     >
                       {r.name}
-                      {r.sponsor && (
+                      {SITE.showSponsorMarks && r.sponsor && (
                         <span className="rounded-full bg-muted px-1 py-px text-[9px] font-medium text-muted-foreground">
                           {p.sponsorTag}
                         </span>

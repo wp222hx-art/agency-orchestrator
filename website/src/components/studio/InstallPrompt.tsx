@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import { Download, TerminalSquare, X } from "lucide-react";
+import { TerminalSquare, X } from "lucide-react";
 import { CopyButton } from "@/components/ui/copy-button";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { SITE } from "@/lib/site";
 
-// 演示模式下点「运行 / 填 key」时弹出：引导去下载客户端或本地运行。
+// 演示模式下点「运行 / 填 key」时弹出：引导在本机启动引擎（部署步骤见站内文档）。
 export function InstallPrompt({ onClose }: { onClose: () => void }) {
   const { t, prefix } = useLanguage();
   const d = t.studio.demo;
-  const cmd = "npm i -g agency-orchestrator && ao web";
+  const cmd = SITE.startCmd;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
@@ -33,23 +33,7 @@ export function InstallPrompt({ onClose }: { onClose: () => void }) {
         <div className="px-5 py-4">
           <p className="text-sm leading-relaxed text-muted-foreground">{d.installDesc}</p>
 
-          <a
-            href={SITE.releases}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/[0.06] p-4 transition-colors hover:bg-primary/[0.1]"
-          >
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
-              <Download className="size-5" />
-            </span>
-            <span className="min-w-0">
-              <span className="block font-semibold">{d.optDesktopTitle}</span>
-              <span className="block text-xs text-muted-foreground">{d.optDesktopDesc}</span>
-              <span className="mt-1 inline-block text-xs font-medium text-primary">{d.optDesktopCta} →</span>
-            </span>
-          </a>
-
-          <div className="mt-3 rounded-xl border border-border/70 bg-card/50 p-4">
+          <div className="mt-4 rounded-xl border border-border/70 bg-card/50 p-4">
             <div className="flex items-start gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-foreground">
                 <TerminalSquare className="size-5" />

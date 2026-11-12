@@ -262,8 +262,8 @@ export function envProxyHint(env: NodeJS.ProcessEnv = process.env): string {
       : '但本次请求没有走它（代理接管尚未初始化）';
   return [
     `检测到代理环境变量 ${found.name}=${found.url}，${why} ——`,
-    `  Node 的 fetch 默认不读这些变量（curl / 浏览器会读），所以会出现"curl 能通、AO 连不上"。`,
-    `  去掉 AO_NO_PROXY（或修好该依赖）即可让 AO 自己走代理；也可以换用不需要代理的中转商端点。`,
+    `  Node 的 fetch 默认不读这些变量（curl / 浏览器会读），所以会出现"curl 能通、momogsm 连不上"。`,
+    `  去掉 AO_NO_PROXY（或修好该依赖）即可让 momogsm 自己走代理；也可以换用不需要代理的中转商端点。`,
   ].join('\n  ');
 }
 
@@ -358,7 +358,7 @@ export function endpointHint(status: number, url: string, baseUrl: string, drift
     );
   } else if (body && isChatProtocolUnsupported(body)) {
     lines.push(
-      '该模型只收 Responses 协议、不收 chat completions —— AO 直连打的是 /v1/chat/completions，所以用不了（同分组的其它模型也一样）',
+      '该模型只收 Responses 协议、不收 chat completions —— momogsm 直连打的是 /v1/chat/completions，所以用不了（同分组的其它模型也一样）',
       '换一个收 chat completions 的分组/模型（如 PackyCode 的 bailian 分组、qwen3.8-max），或给 Codex 配这家的中转（供应商选 codex-cli）',
     );
   } else if (body && isGatewayAccessDenied(body)) {

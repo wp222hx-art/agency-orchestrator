@@ -26,7 +26,7 @@ export function assertNotSymlink(path: string): void {
   try { link = lstatSync(path).isSymbolicLink(); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
   if (link) {
-    throw new Error(`${path} 是符号链接（可能由 dotfiles 工具管理）。AO 的原子写入会把链接替换成普通文件，`
+    throw new Error(`${path} 是符号链接（可能由 dotfiles 工具管理）。momogsm 的原子写入会把链接替换成普通文件，`
       + '为保护你的链接，这次不修改。请改为直接编辑链接指向的文件，或暂时把它换成普通文件后再试。');
   }
 }

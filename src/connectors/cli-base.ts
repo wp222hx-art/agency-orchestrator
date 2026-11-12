@@ -218,7 +218,7 @@ export class CLIBaseConnector implements LLMConnector {
           reject(new Error(
             `找不到 ${this.cfg.command} 命令，请先安装 ${this.cfg.displayName}\n` +
             (this.cfg.installHint ? `安装: ${this.cfg.installHint}\n` : '') +
-            `参考: https://github.com/jnMetaCode/agency-orchestrator#llm-配置`
+            `参考: 站内文档「接入模型」`
           ));
         } else {
           reject(new Error(`${this.cfg.displayName} 调用失败: ${err.message}`));
@@ -246,7 +246,7 @@ export class CLIBaseConnector implements LLMConnector {
             reject(new Error(
               `找不到 ${this.cfg.command} 命令，请先安装 ${this.cfg.displayName}\n` +
               (this.cfg.installHint ? `安装: ${this.cfg.installHint}\n` : '') +
-              `参考: https://github.com/jnMetaCode/agency-orchestrator#llm-配置`
+              `参考: 站内文档「接入模型」`
             ));
             return;
           }

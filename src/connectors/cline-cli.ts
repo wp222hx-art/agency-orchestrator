@@ -58,7 +58,7 @@ export function checkArgBudget(systemPrompt: string, userMessage: string, platfo
   if (units(seg) > hard) {
     const kb = (Buffer.byteLength(seg, 'utf-8') / 1024).toFixed(1);
     throw new Error(
-      `Cline CLI 只能从命令行参数接收提示词（它不读 AO 送进 stdin 的内容），而本步有一段提示词 ${kb}KB，超过了系统命令行长度上限。\n` +
+      `Cline CLI 只能从命令行参数接收提示词（它不读 momogsm 送进 stdin 的内容），而本步有一段提示词 ${kb}KB，超过了系统命令行长度上限。\n` +
       `  解决办法（任选其一）：\n` +
       `  1. 换成支持 stdin 的 CLI provider（claude-code / codex-cli / codebuddy-cli）或直连 API 的 provider；\n` +
       `  2. 精简该步骤的角色提示词或输入变量。`

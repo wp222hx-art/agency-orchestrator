@@ -1,12 +1,11 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Download, Github, Terminal } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CopyButton } from "@/components/ui/copy-button";
 import { useLanguage } from "@/i18n/LanguageProvider";
-import { SITE } from "@/lib/site";
 
+// 首页主视觉：直接讲 momogsm 现在做的事（工业 / 商业 / 贸易企业的 AI 赋能），入口全部是站内页面。
 export function Hero() {
   const { t, prefix } = useLanguage();
   const h = t.hero;
@@ -25,7 +24,7 @@ export function Hero() {
         >
           <Badge className="mx-auto border-primary/30 bg-primary/10 text-primary">{h.badge}</Badge>
           <h1 className="mt-6 text-balance text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl">
-            {h.title} <span className="text-gradient">{h.titleHighlight}</span>
+            {h.title} <span className="block text-gradient">{h.titleHighlight}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
             {h.subtitle}
@@ -33,34 +32,23 @@ export function Hero() {
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
-              <a href={SITE.releases} target="_blank" rel="noreferrer">
-                <Download className="size-5" />
-                {h.ctaDownload}
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <a href={SITE.repo} target="_blank" rel="noreferrer">
-                <Github className="size-5" />
-                {h.ctaPrimary}
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to={prefix("/sponsors")}>
-                {h.ctaSecondary}
+              <Link to={prefix("/enterprise")}>
+                {h.ctaMatch}
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
-          </div>
-
-          <div className="mx-auto mt-8 max-w-xl">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">{h.installHint}</p>
-            <div className="glass flex items-center justify-between rounded-xl px-4 py-3 font-mono text-sm">
-              <span className="flex items-center gap-2 truncate">
-                <Terminal className="size-4 shrink-0 text-primary" />
-                <span className="truncate">{SITE.install}</span>
-              </span>
-              <CopyButton value={SITE.install} label={h.copy} copiedLabel={h.copied} />
-            </div>
+            <Button asChild size="lg" variant="outline">
+              <Link to={`${prefix("/enterprise")}?tab=twin`}>
+                <Workflow className="size-5" />
+                {h.ctaTwin}
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to={prefix("/studio")}>
+                <LayoutDashboard className="size-5" />
+                {h.ctaStudio}
+              </Link>
+            </Button>
           </div>
         </motion.div>
 

@@ -190,7 +190,7 @@ try {
     const script = `
       for (let n = 0; n < 100; n++) {
         try { console.log(JSON.stringify(store.create('raced-key', ${JSON.stringify(snapshot)}))); break; }
-        catch (e) { if (!String(e).includes('另一个 AO')) throw e; await new Promise(r => setTimeout(r, 20)); }
+        catch (e) { if (!String(e).includes('另一个 momogsm')) throw e; await new Promise(r => setTimeout(r, 20)); }
       }
     `;
     const results = await Promise.all([1, 2].map(() => new Promise<any>((done, reject) => {
@@ -215,7 +215,7 @@ try {
           try { store.transition(${JSON.stringify(job.id)}, ${JSON.stringify(status)}, 1); console.log('committed'); break; }
           catch (e) {
             if (e.code === 'JOB_CONFLICT') { console.log('conflict'); break; }
-            if (!String(e).includes('另一个 AO')) throw e;
+            if (!String(e).includes('另一个 momogsm')) throw e;
             await new Promise(r => setTimeout(r, 20));
           }
         }

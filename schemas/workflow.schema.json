@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://ao.aiolaola.com/schemas/workflow.schema.json",
-  "title": "Agency Orchestrator workflow",
-  "description": "ao 工作流 YAML。在文件第一行写 `# yaml-language-server: $schema=https://ao.aiolaola.com/schemas/workflow.schema.json` 即可在 VS Code（YAML 扩展）等编辑器里获得补全与即时校验。结构校验之外的检查（依赖成环、变量未定义、角色不存在）仍由 `ao validate` 负责。",
+  "$id": "momogsm:workflow.schema.json",
+  "title": "momogsm workflow",
+  "description": "ao 工作流 YAML。在文件第一行写 `# yaml-language-server: $schema=<你的站点地址>/schemas/workflow.schema.json` 即可在 VS Code（YAML 扩展）等编辑器里获得补全与即时校验。结构校验之外的检查（依赖成环、变量未定义、角色不存在）仍由 `ao validate` 负责。",
   "type": "object",
   "required": [
     "name",

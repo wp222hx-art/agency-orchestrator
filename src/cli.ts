@@ -31,13 +31,12 @@ import { formatCompareReport } from './cli/compare-report.js';
 import { INSTALL_TARGETS, installRoles } from './cli/install.js';
 import { materializeFromResult } from './cli/materialize.js';
 import { homedir } from 'node:os';
-import { scheduleUpdateCheck, fetchLatestVersion, isNewer, detectUpgradeCommand, PKG } from './utils/version-check.js';
+import { scheduleUpdateCheck } from './utils/version-check.js';
 import { t, detectLang } from './i18n.js';
 import { loadEnvFile, writeEnvFile, ensureEnvGitignored } from './utils/env-loader.js';
 import { parseDuration } from './utils/duration.js';
 import { llmOverrideFromEnv } from './core/llm-override.js';
 import { defaultOutputDir, defaultWorkflowsDir, aoUserDir } from './utils/paths.js';
-import { rotatingSponsors, guideProviderId } from './utils/sponsor-guide.js';
 
 // 自动读 .env（shell 里已有的值永远赢，不覆盖）。两处，按优先级：
 //   shell env > ./.env（项目级） > ~/.ao/.env（用户级）
@@ -357,7 +356,7 @@ async function handleRun(): Promise<void> {
             const { skillSlug } = await import('./export/convert.js');
             const id = skillSlug(result.name);
             console.log(`     装给 Claude Code：mkdir -p ~/.claude/skills/${id} && cp "${out}" ~/.claude/skills/${id}/SKILL.md`);
-            console.log(`     装给 AO 自己的步骤（step 里写 skill: "${id}"）：放进 ./skills/${id}/SKILL.md 或 $AO_SKILLS_DIR`);
+            console.log(`     装给 momogsm 自己的步骤（step 里写 skill: "${id}"）：放进 ./skills/${id}/SKILL.md 或 $AO_SKILLS_DIR`);
           }
           if (r.ext === 'html' && exportFmt === 'pdf') {
             console.log(`     (未检测到 pandoc+LaTeX,已输出打印就绪 HTML;浏览器打开 Ctrl-P 存 PDF,或装 pandoc 获更佳排版)`);
@@ -1099,7 +1098,7 @@ async function handleReport(): Promise<void> {
   const out = join(runDir, 'report.html');
   writeFileSync(out, html, 'utf-8');
   console.log(`\n  📄 报告已生成：${out}`);
-  console.log(`     自包含单文件（图片已内联）——直接发给任何人，双击即开，无需装 AO。\n`);
+  console.log(`     自包含单文件（图片已内联）——直接发给任何人，双击即开，无需安装 momogsm。\n`);
 }
 
 function composeProviderHasCredentials(provider: string, apiKey?: string, baseUrl?: string): boolean {
@@ -1127,18 +1126,8 @@ function printFirstRunGuide(provider: string): void {
     L(`       ao compose "…" --run --provider claude-code`);
   }
   L('');
-  L(`  ② 用「送额度」的聚合/中转（几十秒拿 key，一个 key 通 Claude/GPT/Gemini 全家桶）：`);
-  // 赞助商位规则（src/utils/sponsor-guide.ts）：进阶档持有默认 provider 位、不占此处，
-  // 但该档位自 2026-08-17 起无人持有（多元探索下架），所以此处就是全部 8 家
-  // （旗舰+标准）按天轮换 2 家
-  const rots = rotatingSponsors();
-  for (const s of rots) {
-    // 纯编码 CLI 中转商（relayOnly）拿到 key 后不是配 --provider，而是在 Studio 里给
-    // claude/codex/gemini 配中转，这里直说，免得用户照着下面那行示例去 --provider 它
-    const how = s.relayOnly ? '（编码 CLI 中转，在 Studio「供应商 → CLI 中转商」一键配）' : '';
-    L(`       · ${s.name}${s.bonus ? ` ${s.bonus}` : ''} → ${s.url}${how}`);
-  }
-  L(`       拿到 key：ao compose "…" --run --provider ${guideProviderId(rots)} --api-key <你的key>`);
+  L(`  ② 用任意一家模型服务的 API key（OpenAI 兼容即可，如 DeepSeek）：`);
+  L(`       ao compose "…" --run --provider deepseek --api-key <你的key>`);
   L('');
   L(`  ③ 本地免费跑（需先装 Ollama 并拉好模型，建议 70B+）：`);
   L(`       ao compose "…" --run --provider ollama --model llama3`);
@@ -1662,7 +1651,7 @@ async function handleWeb(): Promise<void> {
   const url = `http://${host}:${port}`;
   const noOpen = args.includes('--no-open');
 
-  console.log(`\n🌐 启动 AO Web Studio … ${url}`);
+  console.log(`\n🌐 启动 momogsm 工作台 … ${url}`);
   console.log('   按 Ctrl+C 停止\n');
 
   const child = spawn(process.execPath, [serverPath], {
@@ -2023,44 +2012,12 @@ function getArgValue(flag: string): string | undefined {
 }
 
 /**
- * ao upgrade — 自我升级：拉取 npm 最新版，比对后自动用对应包管理器升级。
- *   ao upgrade            检测并升级到最新版
- *   ao upgrade --check    只检查不升级（干跑，CI 友好）
- * 包管理器自动从安装路径推断，可用 AO_UPGRADE_CMD 覆盖整条命令。
+ * ao upgrade — 只说明当前版本与更新方法。
+ * momogsm 没有在线升级渠道；原来的实现会从公共包仓库安装上游包，已移除。
  */
 async function handleUpgrade(): Promise<void> {
-  const current = getVersion();
-  const checkOnly = args.includes('--check') || args.includes('--dry-run');
-
-  console.log(t('upgrade.checking', { pkg: PKG }));
-  const latest = await fetchLatestVersion();
-  if (!latest) {
-    console.error(t('upgrade.fetch_failed'));
-    process.exit(1);
-  }
-
-  if (!isNewer(latest, current)) {
-    console.log(t('upgrade.up_to_date', { v: current }));
-    return;
-  }
-
-  console.log(t('upgrade.available', { current, latest }));
-  const cmd = detectUpgradeCommand(`${PKG}@${latest}`, fileURLToPath(import.meta.url));
-
-  if (checkOnly) {
-    console.log(t('upgrade.check_hint', { cmd }));
-    return;
-  }
-
-  console.log(t('upgrade.running', { cmd }) + '\n');
-  try {
-    execSync(cmd, { stdio: 'inherit' });
-  } catch {
-    // 全局安装常因权限失败；给出可操作提示而非堆栈
-    console.error('\n' + t('upgrade.run_failed', { cmd }));
-    process.exit(1);
-  }
-  console.log('\n' + t('upgrade.done', { latest }));
+  // 原实现会从公共包仓库安装上游开源包，等于把 momogsm 换成另一个软件——不能这么做。
+  console.log(t('upgrade.unavailable', { v: getVersion() }));
 }
 
 function getVersion(): string {
@@ -2095,7 +2052,7 @@ function printCommandHelp(command: string): void {
     skills: '用法: ao skills [名字]',
     serve: '用法: ao serve   启动 MCP Server（stdio）',
     web: '用法: ao web [--port n]   启动 Web Studio',
-    upgrade: '用法: ao upgrade [--check]',
+    upgrade: '用法: ao upgrade',
   };
   const text = usage[command];
   if (text) console.log(`\n  ${text.replace(/\n/g, '\n  ')}\n`);

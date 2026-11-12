@@ -178,14 +178,14 @@ async function showDagAndGuide(): Promise<void> {
   console.log('      ollama serve  &&  ollama pull qwen2.5:7b');
   console.log('      ao demo');
   console.log('');
-  console.log('  完整文档: https://github.com/jnMetaCode/agency-orchestrator');
+  console.log('  完整文档: 运行 ao web 后见站内「文档」');
 }
 
 // ─── Main Entry ───
 
 export async function runDemo(): Promise<void> {
   console.log(`
-  🎬 Agency Orchestrator Demo
+  🎬 momogsm Demo
   ${'─'.repeat(40)}
   Workflow: 短篇小说创作（5 个 AI 角色接力）
   Premise: "${DEMO_PREMISE}"

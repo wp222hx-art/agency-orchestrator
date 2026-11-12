@@ -41,7 +41,7 @@ export function ResourcesPanel({ offline }: { offline: boolean }) {
     catch { if (detailGeneration.current === request) setDetailFailed(true); }
     finally { if (detailGeneration.current === request) setDetailLoading(false); }
   };
-  const names = { ao: "AO", "claude-code": "Claude Code", "codex-cli": "Codex CLI" };
+  const names = { ao: "momogsm", "claude-code": "Claude Code", "codex-cli": "Codex CLI" };
   const sourceName = (id: string) => id.startsWith("skills-") ? `${p.skillSource} ${Number(id.slice(7)) + 1}` : names[id.slice(4) as keyof typeof names] || p.unknown;
   const filtered = (report?.items || []).filter(item => (showShadowed || item.selection !== "shadowed") && (kind === "all" || item.kind === kind) && (host === "all" || item.host === host)
     && `${item.name} ${item.reference || ""} ${item.description || ""} ${item.endpointOrigin || ""}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));

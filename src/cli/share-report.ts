@@ -3,7 +3,7 @@
  *
  * 设计目标：用户跑出一份满意的成果后，一条命令得到一张能直接发给任何人的
  * 静态页面（微信/群里双击即开，无需装 AO）——专家分工时间线 + 每步产出 +
- * 最终成品。页面自带 "Made with Agency Orchestrator" 署名，是产品的传播载体。
+ * 最终成品。页脚带 momogsm 署名。
  *
  * 约束：单文件、零外链（图片内联为 data URI）、亮暗色自适应、可打印。
  */
@@ -89,7 +89,7 @@ function mdToHtml(md: string, resolveAsset?: (src: string) => string | null): st
  */
 export function renderRunDirReport(runDir: string, generatedAt?: string): string {
   const metaFile = join(runDir, 'metadata.json');
-  if (!existsSync(metaFile)) throw new Error(`"${runDir}" 里没有 metadata.json —— 不是一个 AO 运行输出目录。`);
+  if (!existsSync(metaFile)) throw new Error(`"${runDir}" 里没有 metadata.json —— 不是一个运行输出目录。`);
   const meta = JSON.parse(readFileSync(metaFile, 'utf-8'));
 
   const stepsDir = join(runDir, 'steps');
@@ -201,7 +201,7 @@ export function renderShareReport(d: ShareReportData): string {
      <script> / onerror=。这页会被 Studio 在同源打开、也会被转发给别人，所以用 CSP 把脚本一刀切掉：
      本页自己没有脚本，样式全在 <style> 里，图片 / 音视频全是内联的 data:。 -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; media-src data:; style-src 'unsafe-inline'; font-src data:; form-action 'none'; base-uri 'none'">
-<title>${esc(d.name)} · AO 运行报告</title>
+<title>${esc(d.name)} · momogsm 运行报告</title>
 <style>
   :root {
     --bg: #f6f7f9; --card: #ffffff; --ink: #1d2530; --muted: #5d6b7e;
@@ -269,9 +269,7 @@ export function renderShareReport(d: ShareReportData): string {
 ${stepsHtml}
 ${compareHtml}
   <footer>
-    <span>本页由 <strong>Agency Orchestrator</strong> 的 AI 专家团队协作生成${d.generatedAt ? ` · ${esc(d.generatedAt)}` : ''}</span>
-    <a href="https://github.com/jnMetaCode/agency-orchestrator">github.com/jnMetaCode/agency-orchestrator</a>
-    <span>一句话，让多个 AI 角色自动协作：<code>npm i -g agency-orchestrator</code></span>
+    <span>本页由 <strong>momogsm</strong> 的 AI 专家团队协作生成${d.generatedAt ? ` · ${esc(d.generatedAt)}` : ''}</span>
   </footer>
 </div>
 </body>

@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- 白色单色版：深色/彩色背景用 -->
-  <path d="M52 372 L142 138 L232 372" fill="none" stroke="#fff" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="386" cy="255" r="88" fill="none" stroke="#fff" stroke-width="52"/>
-  <circle cx="386" cy="255" r="24" fill="#fff"/>
-</svg>

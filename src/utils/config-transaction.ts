@@ -56,7 +56,7 @@ function owner(path: string): Owner {
   // A freshly created lock may simply not have its record yet: report "busy", never delete it.
   let recent = false;
   try { recent = Date.now() - statSync(path).mtimeMs < LOCK_INIT_GRACE_MS; } catch { /* Vanished: still busy/unknown. */ }
-  if (recent) throw new Error('配置正在由另一个 AO 操作修改，请稍后重试');
+  if (recent) throw new Error('配置正在由另一个 momogsm 操作修改，请稍后重试');
   throw new Error(`配置锁记录无法读取，请检查后恢复：${path}`);
 }
 
@@ -85,7 +85,7 @@ function lock(path: string): () => void {
   catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
     const old = owner(path);
-    if (alive(old.pid)) throw new Error('配置正在由另一个 AO 操作修改，请稍后重试');
+    if (alive(old.pid)) throw new Error('配置正在由另一个 momogsm 操作修改，请稍后重试');
     // Serialize stale-lock reclamation; a corrupt/orphaned reclaim guard requires manual review.
     const guard = `${path}.reclaim`;
     try { createLock(guard, value); }
@@ -96,7 +96,7 @@ function lock(path: string): () => void {
     try {
       // Re-read under the guard: never delete a new live owner's lock.
       if (existsSync(path)) {
-        if (alive(owner(path).pid)) throw new Error('配置正在由另一个 AO 操作修改，请稍后重试');
+        if (alive(owner(path).pid)) throw new Error('配置正在由另一个 momogsm 操作修改，请稍后重试');
         unlinkSync(path);
       }
       createLock(path, value);
